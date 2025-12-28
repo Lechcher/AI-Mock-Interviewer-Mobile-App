@@ -1,24 +1,33 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import "./global.css";
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useFonts } from "expo-font";
+import { SplashScreen, Stack } from "expo-router";
+import { useEffect } from "react";
 
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+  const [fontLoaded] = useFonts({
+    "Lexend-Black": require("@/assets/fonts/Lexend-Black.ttf"),
+    "Lexend-Bold": require("@/assets/fonts/Lexend-Bold.ttf"),
+    "Lexend-ExtraBold": require("@/assets/fonts/Lexend-ExtraBold.ttf"),
+    "Lexend-ExtraLight": require("@/assets/fonts/Lexend-ExtraLight.ttf"),
+    "Lexend-Light": require("@/assets/fonts/Lexend-Light.ttf"),
+    "Lexend-Medium": require("@/assets/fonts/Lexend-Medium.ttf"),
+    "Lexend-Regular": require("@/assets/fonts/Lexend-Regular.ttf"),
+    "Lexend-SemiBold": require("@/assets/fonts/Lexend-SemiBold.ttf"),
+    "Lexend-Thin": require("@/assets/fonts/Lexend-Thin.ttf"),
+  });
 
-  return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
-  );
+  useEffect(() => {
+    if (fontLoaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [fontLoaded]);
+
+  if (!fontLoaded) {
+    return null;
+  }
+
+  return <Stack screenOptions={{ headerShown: false }} />;
 }
