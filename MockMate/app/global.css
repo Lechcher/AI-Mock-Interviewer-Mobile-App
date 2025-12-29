@@ -1,2 +1,24 @@
 @import "tailwindcss";
 @import "uniwind";
+
+@theme {
+    /* Fonts */
+    --font-lexend-black: "Lexend-Black", sans-serif;
+    --font-lexend-bold: "Lexend-Bold", sans-serif;
+    --font-lexend-extra-bold: "Lexend-ExtraBold", sans-serif;
+    --font-lexend-extra-light: "Lexend-ExtraLight", sans-serif;
+    --font-lexend-light: "Lexend-Light", sans-serif;
+    --font-lexend-medium: "Lexend-Medium", sans-serif;
+    --font-lexend-regular: "Lexend-Regular", sans-serif;
+    --font-lexend-semi-bold: "Lexend-SemiBold", sans-serif;
+    --font-lexend-thin: "Lexend-Thin", sans-serif;
+
+    /* Colors */
+    --color-primary-100: #2563EB;
+    --color-primary-200: #DBEAFE;
+    --color-primary-300: rgba(13, 89, 242, 0.1);
+
+    --color-black: #0F172A;
+    --color-black-100: #4B5563;
+    --color-black-200: #64748B;
+}
