@@ -64,10 +64,10 @@ export const login = async () => {
   try {
     const redirectUrl = Linking.createURL("/");
 
-    const response = await account.createOAuth2Token(
-      OAuthProvider.Google,
-      redirectUrl
-    );
+    const response = await account.createOAuth2Token({
+      provider: OAuthProvider.Google,
+      success: redirectUrl,
+    });
 
     if (!response) throw new Error("Create OAuth2 token failed");
 

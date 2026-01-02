@@ -1,16 +1,15 @@
 // Root layout for the "(root)" group: centralizes auth/loading handling
 // and renders nested routes via Expo Router's Slot.
-import { Redirect, Slot } from "expo-router";
 
 import { useGlobalContext } from "@/core/global-provider";
+import { Redirect, Slot } from "expo-router";
 import { ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { withUniwind } from "uniwind";
 
-const AppLayout = () => {
-  // Wrap SafeAreaView with Uniwind for styling
-  const StyledSafeAreaView = withUniwind(SafeAreaView);
+const StyledSafeAreaView = withUniwind(SafeAreaView);
 
+const AppLayout = () => {
   // Read global app state: `loading` during initial bootstrap, `isLoggedIn` for auth guard
   const { loading, isLoggedIn } = useGlobalContext();
 

@@ -3,7 +3,7 @@ import { createContext, type ReactNode, useContext } from "react";
 // Custom hook for Appwrite integration
 import { useAppwrite } from "@/hooks/useAppwrite";
 // Function to get the current user from Appwrite
-import { getCurrentUser } from "./appwrite";
+import { getCurrentUser } from "@/lib/appwrite";
 
 // Interface defining the structure of a User object
 interface User {

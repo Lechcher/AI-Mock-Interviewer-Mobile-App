@@ -14,7 +14,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#FFFFFF",
+        "backgroundColor": "#F5F6F8",
         "foregroundImage": "./assets/images/Logo/Logo.png"
       },
       "edgeToEdgeEnabled": true,
@@ -32,23 +32,13 @@
         {
           "image": "./assets/images/Logo/Logo.png",
           "resizeMode": "cover",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#F5F6F8"
         }
       ],
       [
         "expo-font",
         {
-          "fonts": [
-            "./assets/fonts/Lexend-Black.ttf",
-            "./assets/fonts/Lexend-Bold.ttf",
-            "./assets/fonts/Lexend-ExtraBold.ttf",
-            "./assets/fonts/Lexend-ExtraLight.ttf",
-            "./assets/fonts/Lexend-Light.ttf",
-            "./assets/fonts/Lexend-Medium.ttf",
-            "./assets/fonts/Lexend-Regular.ttf",
-            "./assets/fonts/Lexend-SemiBold.ttf",
-            "./assets/fonts/Lexend-Thin.ttf"
-          ]
+          "fonts": ["./assets/fonts/Lexend-VariableFont.ttf"]
         }
       ]
     ],
