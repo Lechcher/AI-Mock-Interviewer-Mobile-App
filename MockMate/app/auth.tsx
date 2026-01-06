@@ -1,7 +1,7 @@
-import icons from "@/constants/icons";
-import images from "@/constants/images";
+import { login } from "@/core/appwrite";
 import { useGlobalContext } from "@/core/global-provider";
-import { login } from "@/lib/appwrite";
+import icons from "@/lib/icons";
+import images from "@/lib/images";
 import { Redirect } from "expo-router";
 import { Alert, Image, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -30,8 +30,8 @@ const Auth = () => {
   };
 
   return (
-    <StyledSafeAreaView className="flex flex-col px-4 h-full bg-background">
-      <View className="flex flex-col gap-14 items-center justify-center">
+    <StyledSafeAreaView className="flex flex-col px-4 h-full items-center justify-center bg-background">
+      <View className="flex flex-col gap-10 items-center justify-center">
         <View className="flex flex-col items-center justify-center w-full gap-6">
           <View className="inline-flex flex-row items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-100 shadow-sm">
             <View className="flex flex-row overflow-hidden">

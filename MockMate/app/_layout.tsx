@@ -1,9 +1,11 @@
 import "./global.css";
 
+import CustomSplashScreen from "@/components/SplashScreen";
 import GlobalProvider from "@/core/global-provider";
 import { useFonts } from "expo-font";
 import { SplashScreen, Stack } from "expo-router";
-import { useEffect } from "react";
+import { StatusBar } from "expo-status-bar";
+import { useEffect, useState } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { withUniwind } from "uniwind";
 
@@ -16,19 +18,26 @@ export default function RootLayout() {
     Lexend: require("../assets/fonts/Lexend-VariableFont.ttf"),
   });
 
+  const [showCustomSplash, setShowCustomSplash] = useState(true);
+
   useEffect(() => {
     if (fontLoaded) {
       SplashScreen.hideAsync();
+      const timer = setTimeout(() => {
+        setShowCustomSplash(false);
+      }, 2000); // Show custom splash for 2 seconds
+      return () => clearTimeout(timer);
     }
   }, [fontLoaded]);
 
-  if (!fontLoaded) {
-    return null;
+  if (!fontLoaded || showCustomSplash) {
+    return <CustomSplashScreen />;
   }
 
   return (
     <GlobalProvider>
-      <StyledSafeAreaProvider className="font-lexend">
+      <StyledSafeAreaProvider className="font-lexend bg-background">
+        <StatusBar style="auto" />
         <Stack screenOptions={{ headerShown: false }} />
       </StyledSafeAreaProvider>
     </GlobalProvider>

@@ -1,0 +1,111 @@
+* {
+  box-sizing: border-box;
+}
+
+.frame1 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  padding: 44px 16px 12px;
+  width: 430px;
+  height: 96px;
+
+  .image5 {
+    display: flex;
+    flex-shrink: 0;
+    align-items: flex-start;
+    border-radius: 100px;
+    padding-top: 28px;
+    padding-left: 28px;
+    background-image: url(../image/mjysvgru-c36yufr.png);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+
+    .rectangle2 {
+      border: 2px solid #ffffff;
+      border-radius: 100px;
+      background: #22c55e;
+      width: 12px;
+      height: 12px;
+    }
+  }
+
+  .statusIndicator {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    column-gap: 8px;
+
+    .frame {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      overflow: hidden;
+    }
+
+    .streak {
+      display: inline-flex;
+      flex-shrink: 0;
+      align-items: center;
+      column-gap: 4px;
+      border: 1px solid #ffedd5;
+      border-radius: 100px;
+      background: #fff7ed;
+      padding: 5px 7px;
+
+      .a12 {
+        flex-shrink: 0;
+        line-height: 15px;
+        letter-spacing: -0.17px;
+        color: #ea580c;
+        font-family: Lexend, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", SimHei, Arial, Helvetica, sans-serif;
+        font-size: 12px;
+        font-weight: 700;
+      }
+    }
+
+    .gems {
+      display: inline-flex;
+      flex-shrink: 0;
+      align-items: center;
+      column-gap: 4px;
+      border: 1px solid #dbeafe;
+      border-radius: 100px;
+      background: #eff6ff;
+      padding: 5px 7px;
+
+      .a450 {
+        flex-shrink: 0;
+        line-height: 15px;
+        letter-spacing: -0.17px;
+        color: #2563eb;
+        font-family: Lexend, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", SimHei, Arial, Helvetica, sans-serif;
+        font-size: 12px;
+        font-weight: 700;
+      }
+    }
+
+    .vIpStatus {
+      display: inline-flex;
+      flex-shrink: 0;
+      align-items: center;
+      column-gap: 4px;
+      border: 1px solid #fef9c3;
+      border-radius: 100px;
+      background: #fefce8;
+      padding: 5px 7px;
+
+      .vIp {
+        flex-shrink: 0;
+        line-height: 15px;
+        letter-spacing: -0.17px;
+        color: #ca8a04;
+        font-family: Lexend, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", SimHei, Arial, Helvetica, sans-serif;
+        font-size: 12px;
+        font-weight: 700;
+      }
+    }
+  }
+}

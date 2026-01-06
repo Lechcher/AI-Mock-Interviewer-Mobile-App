@@ -1,11 +1,23 @@
+import {
+  Banknote,
+  GraduationCap,
+  HeartPulse,
+  Megaphone,
+  Package,
+  PencilRuler,
+  SquareTerminal,
+  Store,
+} from "lucide-react-native";
+
 export const status = {
   streaks: 5,
   gems: 450,
   vipStatus: false,
 };
 
-export const cards = [
+export const cardsData = [
   {
+    id: 1,
     title: "Senior UX Designer",
     industry: "Design",
     difficulty: "Hard",
@@ -16,6 +28,7 @@ export const cards = [
     isFavourite: true,
   },
   {
+    id: 2,
     title: "Entry-Level Product Manager",
     industry: "Manager",
     difficulty: "Easy",
@@ -26,6 +39,7 @@ export const cards = [
     isFavourite: false,
   },
   {
+    id: 3,
     title: "Intermediate Software Engineer",
     industry: "IT",
     difficulty: "Medium",
@@ -36,6 +50,7 @@ export const cards = [
     isFavourite: false,
   },
   {
+    id: 4,
     title: "Junior Data Analyst",
     industry: "Data",
     difficulty: "Easy",
@@ -46,6 +61,7 @@ export const cards = [
     isFavourite: false,
   },
   {
+    id: 5,
     title: "Senior DevOps Engineer",
     industry: "IT",
     difficulty: "Hard",
@@ -56,6 +72,7 @@ export const cards = [
     isFavourite: false,
   },
   {
+    id: 6,
     title: "Mid-Level Marketing Specialist",
     industry: "Marketing",
     difficulty: "Medium",
@@ -66,6 +83,7 @@ export const cards = [
     isFavourite: false,
   },
   {
+    id: 7,
     title: "Entry-Level Graphic Designer",
     industry: "Design",
     difficulty: "Easy",
@@ -76,6 +94,7 @@ export const cards = [
     isFavourite: false,
   },
   {
+    id: 8,
     title: "Senior Product Owner",
     industry: "Manager",
     difficulty: "Hard",
@@ -87,8 +106,9 @@ export const cards = [
   },
 ];
 
-export const FeaturedCards = [
+export const featuredCardsData = [
   {
+    id: 9,
     title: "Senior UX Designer",
     industry: "Design",
     difficulty: "Hard",
@@ -96,8 +116,10 @@ export const FeaturedCards = [
     review: 4.7,
     reviewCount: 120,
     focusArea: "User Research & Interaction Design",
+    isFavourite: true,
   },
   {
+    id: 10,
     title: "Entry-Level Product Manager",
     industry: "Manager",
     difficulty: "Easy",
@@ -105,8 +127,10 @@ export const FeaturedCards = [
     review: 4.5,
     reviewCount: 89,
     focusArea: "Product Strategy & Roadmapping",
+    isFavourite: false,
   },
   {
+    id: 11,
     title: "Intermediate Software Engineer",
     industry: "IT",
     difficulty: "Medium",
@@ -114,15 +138,57 @@ export const FeaturedCards = [
     review: 4.9,
     reviewCount: 156,
     focusArea: "Software Development & Architecture",
+    isFavourite: false,
   },
 ];
 
-export const industries = [
-  "IT",
-  "Data",
-  "Sales",
-  "Finance",
-  "Design",
-  "Manager",
-  "Marketing",
-];
+export const industries = {
+  IT: {
+    title: "IT",
+    icon: SquareTerminal,
+    iconColor: "#059669",
+    backgroundColor: "#ECFDF5",
+  },
+  Sales: {
+    title: "Sales",
+    icon: Store,
+    iconColor: "#EA580C",
+    backgroundColor: "#FFEDD5",
+  },
+  Finance: {
+    title: "Finance",
+    icon: Banknote,
+    iconColor: "#2563EB",
+    backgroundColor: "#DBEAFE",
+  },
+  Design: {
+    title: "Design",
+    icon: PencilRuler,
+    iconColor: "#9333EA",
+    backgroundColor: "#F3E8FF",
+  },
+  Manager: {
+    title: "Manager",
+    icon: Package,
+    iconColor: "#4F46E5",
+    backgroundColor: "#EEF2FF",
+  },
+  Marketing: {
+    title: "Marketing",
+    icon: Megaphone,
+    iconColor: "#DB2777",
+    backgroundColor: "#FCE7F3",
+  },
+  HealthCare: {
+    title: "HealthCare",
+    icon: HeartPulse,
+    iconColor: "#DC2626",
+    backgroundColor: "#FEF2F2",
+  },
+  Education: {
+    title: "Education",
+    icon: GraduationCap,
+    iconColor: "#F59E0B",
+    backgroundColor: "#FFFBEB",
+  },
+};

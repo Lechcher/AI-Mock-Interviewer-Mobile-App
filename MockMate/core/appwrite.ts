@@ -18,7 +18,7 @@ import {
 import {
   EXPO_PUBLIC_APPWRITE_ENDPOINT,
   EXPO_PUBLIC_APPWRITE_PROJECT_ID,
-} from "./env";
+} from "../lib/env";
 
 /**
  * Appwrite configuration object.
@@ -110,7 +110,7 @@ export const login = async () => {
  */
 export const logout = async () => {
   try {
-    const result = await account.deleteSession("current");
+    const result = await account.deleteSession({ sessionId: "current" });
     return result;
   } catch (error) {
     console.error(error);

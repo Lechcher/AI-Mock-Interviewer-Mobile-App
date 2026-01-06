@@ -1,0 +1,99 @@
+* {
+  box-sizing: border-box;
+}
+
+.splash {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 20px;
+  background: #ffffff;
+  width: 430px;
+  height: 932px;
+  overflow: hidden;
+
+  .aIPhoneXBarsStatusDe {
+    display: flex;
+    align-items: flex-start;
+    align-self: stretch;
+    justify-content: space-between;
+    padding: 14px 20px 12px 8px;
+    min-width: 430px;
+
+    .aTime {
+      width: 54px;
+      text-align: center;
+      letter-spacing: -0.17px;
+      color: var(--Black-01, #191d31);
+      font-family: "SF Pro Text", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", SimHei, Arial, Helvetica, sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .container {
+      margin-top: 3px;
+      width: 67px;
+      height: 12px;
+    }
+  }
+
+  .logo2 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    align-self: stretch;
+    margin: 335px 77px 0px;
+
+    .logo {
+      width: 120px;
+      height: 124px;
+    }
+
+    .titleSub {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      align-self: stretch;
+      margin-top: 1px;
+      row-gap: 10px;
+
+      .mockMate {
+        flex-shrink: 0;
+        align-self: stretch;
+        text-align: center;
+        letter-spacing: 2px;
+        color: #0061ff;
+        font-family: Outfit, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", SimHei, Arial, Helvetica, sans-serif;
+        font-size: 20px;
+        font-weight: 900;
+        text-transform: UPPERCASE;
+      }
+
+      .interviewPracticeMad {
+        flex-shrink: 0;
+        line-height: 15px;
+        letter-spacing: 1.2px;
+        color: var(--Black-02, #666876);
+        font-family: Outfit, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", SimHei, Arial, Helvetica, sans-serif;
+        font-size: 12px;
+        font-weight: 500;
+        text-transform: UPPERCASE;
+      }
+    }
+  }
+
+  .aIPhoneXHomeIndicato {
+    display: flex;
+    align-items: flex-start;
+    align-self: stretch;
+    margin-top: 345px;
+    padding: 21px 148px 8px 147px;
+
+    .line {
+      border-radius: 100px;
+      background: var(--Black-01, #191d31);
+      width: 135px;
+      height: 5px;
+    }
+  }
+}
