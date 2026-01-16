@@ -1,45 +1,48 @@
+import { StyledSafeAreaProvider } from "@/core/customUniwind";
 import "./global.css";
 
 import CustomSplashScreen from "@/components/SplashScreen";
 import GlobalProvider from "@/core/global-provider";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { useFonts } from "expo-font";
 import { SplashScreen, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
-import { SafeAreaProvider } from "react-native-safe-area-context";
-import { withUniwind } from "uniwind";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 SplashScreen.preventAutoHideAsync();
 
-const StyledSafeAreaProvider = withUniwind(SafeAreaProvider);
-
 export default function RootLayout() {
-  const [fontLoaded] = useFonts({
-    Lexend: require("../assets/fonts/Lexend-VariableFont.ttf"),
-  });
+	const [fontLoaded] = useFonts({
+		Lexend: require("../assets/fonts/Lexend-VariableFont.ttf"),
+	});
 
-  const [showCustomSplash, setShowCustomSplash] = useState(true);
+	const [showCustomSplash, setShowCustomSplash] = useState(true);
 
-  useEffect(() => {
-    if (fontLoaded) {
-      SplashScreen.hideAsync();
-      const timer = setTimeout(() => {
-        setShowCustomSplash(false);
-      }, 2000); // Show custom splash for 2 seconds
-      return () => clearTimeout(timer);
-    }
-  }, [fontLoaded]);
+	useEffect(() => {
+		if (fontLoaded) {
+			SplashScreen.hideAsync();
+			const timer = setTimeout(() => {
+				setShowCustomSplash(false);
+			}, 2000); // Show custom splash for 2 seconds
+			return () => clearTimeout(timer);
+		}
+	}, [fontLoaded]);
 
-  if (!fontLoaded || showCustomSplash) {
-    return <CustomSplashScreen />;
-  }
+	if (!fontLoaded || showCustomSplash) {
+		return <CustomSplashScreen />;
+	}
 
-  return (
-    <GlobalProvider>
-      <StyledSafeAreaProvider className="font-lexend bg-background">
-        <StatusBar style="auto" />
-        <Stack screenOptions={{ headerShown: false }} />
-      </StyledSafeAreaProvider>
-    </GlobalProvider>
-  );
+	return (
+		<GlobalProvider>
+			<GestureHandlerRootView>
+				<BottomSheetModalProvider>
+					<StyledSafeAreaProvider className="font-lexend bg-background">
+						<StatusBar style="auto" />
+						<Stack screenOptions={{ headerShown: false }} />
+					</StyledSafeAreaProvider>
+				</BottomSheetModalProvider>
+			</GestureHandlerRootView>
+		</GlobalProvider>
+	);
 }
