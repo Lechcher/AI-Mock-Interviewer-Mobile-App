@@ -1,4 +1,4 @@
-import { StyledSafeAreaProvider } from "@/core/customUniwind";
+import { UniSafeAreaProvider } from "@/core/customUniwind";
 import "./global.css";
 
 import CustomSplashScreen from "@/components/SplashScreen";
@@ -37,10 +37,10 @@ export default function RootLayout() {
 		<GlobalProvider>
 			<GestureHandlerRootView>
 				<BottomSheetModalProvider>
-					<StyledSafeAreaProvider className="font-lexend bg-background">
+					<UniSafeAreaProvider className="font-lexend bg-background">
 						<StatusBar style="auto" />
 						<Stack screenOptions={{ headerShown: false }} />
-					</StyledSafeAreaProvider>
+					</UniSafeAreaProvider>
 				</BottomSheetModalProvider>
 			</GestureHandlerRootView>
 		</GlobalProvider>

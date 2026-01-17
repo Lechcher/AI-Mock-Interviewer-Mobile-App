@@ -1,5 +1,5 @@
 import { login } from "@/core/appwrite";
-import { StyledSafeAreaView } from "@/core/customUniwind";
+import { UniSafeAreaView } from "@/core/customUniwind";
 import { useGlobalContext } from "@/core/global-provider";
 import icons from "@/lib/icons";
 import images from "@/lib/images";
@@ -27,7 +27,7 @@ const Auth = () => {
 	};
 
 	return (
-		<StyledSafeAreaView className="flex flex-col px-4 h-full items-center justify-center bg-background">
+		<UniSafeAreaView className="flex flex-col px-4 h-full items-center justify-center bg-background">
 			<View className="flex flex-col gap-10 items-center justify-center">
 				<View className="flex flex-col items-center justify-center w-full gap-6">
 					<View className="inline-flex flex-row items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-100 shadow-sm">
@@ -101,7 +101,7 @@ const Auth = () => {
 					</View>
 				</View>
 			</View>
-		</StyledSafeAreaView>
+		</UniSafeAreaView>
 	);
 };
 

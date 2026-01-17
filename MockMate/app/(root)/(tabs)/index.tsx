@@ -6,7 +6,7 @@ import {
 	status,
 	weekDaysLabels,
 } from "@/constants/data";
-import { StyledSafeAreaView } from "@/core/customUniwind";
+import { UniSafeAreaView } from "@/core/customUniwind";
 import { useGlobalContext } from "@/core/global-provider";
 import Icons from "@/lib/icons";
 import type BottomSheet from "@gorhom/bottom-sheet";
@@ -21,14 +21,31 @@ import {
 	Plus,
 	Zap,
 } from "lucide-react-native";
-import { useMemo, useRef } from "react";
-import { FlatList, Image, Text, TouchableOpacity, View } from "react-native";
+import { useMemo, useRef, useState } from "react";
+import {
+	FlatList,
+	Image,
+	RefreshControl,
+	Text,
+	TouchableOpacity,
+	View,
+} from "react-native";
 
 export default function Index() {
 	// Global user and authentication state
 	const { user, loading, isLoggedIn } = useGlobalContext();
 
 	const router = useRouter();
+
+	const [refreshing, setRefreshing] = useState(false);
+
+	const onRefresh = () => {
+		setRefreshing(true);
+		// Simulate a refresh operation
+		setTimeout(() => {
+			setRefreshing(false);
+		}, 1000);
+	};
 
 	const streakSheetRef = useRef<BottomSheet>(null);
 
@@ -50,7 +67,7 @@ export default function Index() {
 	const weekDaysLabelsArray = Object.values(weekDaysLabels);
 
 	return (
-		<StyledSafeAreaView className="h-full bg-white">
+		<UniSafeAreaView className="h-full bg-white">
 			<View className="px-4 font-lexend flex flex-row items-center justify-between gap-4 py-4 h-fit">
 				<TouchableOpacity onPress={() => router.push("/profile")}>
 					<View className="relative">
@@ -115,6 +132,9 @@ export default function Index() {
 					keyExtractor={(item) => item.id.toString()}
 					showsVerticalScrollIndicator={false}
 					bounces={false}
+					refreshControl={
+						<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+					}
 					contentContainerClassName="flex gap-3 mt-3"
 					contentContainerStyle={{ paddingBottom: 79 }}
 					ListHeaderComponent={
@@ -269,6 +289,6 @@ export default function Index() {
 					</TouchableOpacity>
 				</View>
 			</BottomSheetPopup>
-		</StyledSafeAreaView>
+		</UniSafeAreaView>
 	);
 }
