@@ -1,11 +1,12 @@
-import { Text, View } from "react-native";
+import { UniSafeAreaView } from "@/core/customUniwind";
+import { Text } from "react-native";
 
-const profile = () => {
-  return (
-    <View>
-      <Text>profile</Text>
-    </View>
-  );
+const Profile = () => {
+	return (
+		<UniSafeAreaView>
+			<Text>profile</Text>
+		</UniSafeAreaView>
+	);
 };
 
-export default profile;
+export default Profile;

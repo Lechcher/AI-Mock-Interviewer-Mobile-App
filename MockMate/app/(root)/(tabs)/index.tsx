@@ -1,26 +1,14 @@
-import BottomSheetPopup from "@/components/BottomSheetPopup";
-import { Card, FeaturedCard } from "@/components/Card";
 import {
-	cardsData,
-	featuredCardsData,
-	status,
-	weekDaysLabels,
-} from "@/constants/data";
+	ItemBottomSheet,
+	StreakBottomSheet,
+} from "@/components/BottomSheetPopup";
+import { Card, FeaturedCard } from "@/components/Card";
+import { cardsData, featuredCardsData, status } from "@/constants/data";
 import { UniSafeAreaView } from "@/core/customUniwind";
 import { useGlobalContext } from "@/core/global-provider";
-import Icons from "@/lib/icons";
 import type BottomSheet from "@gorhom/bottom-sheet";
 import { Redirect, useRouter } from "expo-router";
-import {
-	ArrowRight,
-	BadgeCheck,
-	Check,
-	Flame,
-	Gem,
-	LockKeyhole,
-	Plus,
-	Zap,
-} from "lucide-react-native";
+import { BadgeCheck, Flame, Gem, LockKeyhole, Plus } from "lucide-react-native";
 import { useMemo, useRef, useState } from "react";
 import {
 	FlatList,
@@ -49,22 +37,34 @@ export default function Index() {
 
 	const streakSheetRef = useRef<BottomSheet>(null);
 
-	const snapPoints = useMemo(() => ["85%"], []);
+	const itemSheetRef = useRef<BottomSheet>(null);
+
+	const [selectedInterview, setSelectedInterview] = useState<
+		(typeof cardsData)[0] | null
+	>(null);
+
+	const snapPoints = useMemo(() => ["80%"], []);
 
 	// If user is not authenticated, redirect to auth screen
 	if (!loading && !isLoggedIn) return <Redirect href={"/auth"} />;
 
-	const handleStreakSheetExpand = () => {
+	const handleStreakSheetRefExpand = () => {
 		streakSheetRef.current?.expand();
 	};
 
-	const handleStreakSheetClose = () => {
-		streakSheetRef.current?.close();
+	const handleItemSheetRefExpand = (item: (typeof cardsData)[0]) => {
+		setSelectedInterview(item);
+		itemSheetRef.current?.expand();
 	};
 
-	const currentDayPosition = status.streaks % 7 === 0 ? 7 : status.streaks % 7;
+	const handleSheetRefClose = () => {
+		streakSheetRef.current?.close();
+		itemSheetRef.current?.close();
+	};
 
-	const weekDaysLabelsArray = Object.values(weekDaysLabels);
+	const onShopPress = () => {
+		router.push("/shop");
+	};
 
 	return (
 		<UniSafeAreaView className="h-full bg-white">
@@ -83,7 +83,7 @@ export default function Index() {
 				<View className="flex flex-row items-center justify-center gap-2">
 					<TouchableOpacity
 						className="flex flex-row w-fit items-center justify-center gap-1 px-2 py-1.5 bg-orange-50 rounded-full border border-orange-100"
-						onPress={() => handleStreakSheetExpand()}
+						onPress={() => handleStreakSheetRefExpand()}
 					>
 						<Flame size={20} color={"#F97316"} />
 						<Text className="text-orange-600 font-bold text-xs">
@@ -91,32 +91,36 @@ export default function Index() {
 						</Text>
 					</TouchableOpacity>
 
-					<View className="flex flex-row w-fit items-center justify-center gap-1 px-2 py-1.5 bg-blue-50 rounded-full border border-blue-100">
-						<Gem size={20} color={"#3B82F6"} />
-						<Text className="text-blue-600 font-bold text-xs">
-							{status.gems}
-						</Text>
-					</View>
+					<TouchableOpacity onPress={onShopPress}>
+						<View className="flex flex-row w-fit items-center justify-center gap-1 px-2 py-1.5 bg-blue-50 rounded-full border border-blue-100">
+							<Gem size={20} color={"#3B82F6"} />
+							<Text className="text-blue-600 font-bold text-xs">
+								{status.gems}
+							</Text>
+						</View>
+					</TouchableOpacity>
 
-					<View
-						className={`flex flex-row w-fit items-center justify-center gap-1 px-2 py-1.5 rounded-full border ${
-							status.vipStatus
-								? "bg-yellow-50 border-yellow-100"
-								: "bg-slate-50 border-slate-100"
-						}`}
-					>
-						<BadgeCheck
-							size={20}
-							color={`${status.vipStatus ? "#EAB308" : "#6B7280"}`}
-						/>
-						<Text
-							className={`${
-								status.vipStatus ? "text-yellow-600" : "text-slate-600"
-							} font-bold text-xs`}
+					<TouchableOpacity onPress={() => router.push("/vip")}>
+						<View
+							className={`flex flex-row w-fit items-center justify-center gap-1 px-2 py-1.5 rounded-full border ${
+								status.vipStatus
+									? "bg-yellow-50 border-yellow-100"
+									: "bg-slate-50 border-slate-100"
+							}`}
 						>
-							VIP
-						</Text>
-					</View>
+							<BadgeCheck
+								size={20}
+								color={`${status.vipStatus ? "#EAB308" : "#6B7280"}`}
+							/>
+							<Text
+								className={`${
+									status.vipStatus ? "text-yellow-600" : "text-slate-600"
+								} font-bold text-xs`}
+							>
+								VIP
+							</Text>
+						</View>
+					</TouchableOpacity>
 				</View>
 			</View>
 
@@ -124,10 +128,7 @@ export default function Index() {
 				<FlatList
 					data={cardsData.slice(0, 5)}
 					renderItem={({ item }) => (
-						<Card
-							card={item}
-							onPress={() => router.push(`/properties/${item.id}`)}
-						/>
+						<Card card={item} onPress={() => handleItemSheetRefExpand(item)} />
 					)}
 					keyExtractor={(item) => item.id.toString()}
 					showsVerticalScrollIndicator={false}
@@ -148,7 +149,7 @@ export default function Index() {
 								renderItem={({ item }) => (
 									<FeaturedCard
 										card={item}
-										onPress={() => router.push(`/properties/${item.id}`)}
+										onPress={() => handleItemSheetRefExpand(item)}
 									/>
 								)}
 								keyExtractor={(item) => item.id.toString()}
@@ -193,102 +194,18 @@ export default function Index() {
 				</View>
 			</TouchableOpacity>
 
-			<BottomSheetPopup
-				bottomSheetPopupRef={streakSheetRef as any}
+			<StreakBottomSheet
+				sheetRef={streakSheetRef}
 				snapPoints={snapPoints}
-				handleBottomSheetPopupClose={handleStreakSheetClose}
-			>
-				<View className="flex flex-col justify-center gap-5 mt-4">
-					<View className="relative items-center justify-center">
-						<View
-							className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-20 bg-orange-400/20 rounded-full"
-							style={{ filter: "blur(20px)" }}
-						/>
-						<Icons.fire className="w-16" />
-					</View>
+				handleSheetRefClose={handleSheetRefClose}
+			/>
 
-					<Text className="text-3xl font-bold text-center">
-						You are on a{" "}
-						<Text className="text-primary-100">{status.streaks}-day</Text>{" "}
-						streak!
-					</Text>
-
-					<Text className="text-base text-slate-600 text-center">
-						Complete an interview today to keep it! Consistency is key to acing
-						your next job interview.
-					</Text>
-
-					<View className="bg-gray-50 rounded-2xl p-5 border border-gray-100 gap-4">
-						<View className="flex flex-row justify-between items-center gap-2">
-							{weekDaysLabelsArray.map(({ label, shortenLabel }, index) => {
-								const dayNumber = index + 1;
-								const isPast = dayNumber < currentDayPosition;
-								const isCurrentDay = dayNumber === currentDayPosition;
-
-								const isStreakDay = {
-									isCompleted:
-										isPast || (isCurrentDay && status.hasLearnedToday),
-									isTodayTarget: isCurrentDay && !status.hasLearnedToday,
-									isFuture: dayNumber > currentDayPosition,
-								} as const;
-
-								return (
-									<View
-										key={label}
-										className="flex flex-col items-center gap-2 flex-1"
-									>
-										<Text
-											className={`text-xs font-medium ${isStreakDay.isTodayTarget ? "text-primary-100" : "text-slate-400"}`}
-										>
-											{isStreakDay.isTodayTarget ? "TODAY" : shortenLabel}
-										</Text>
-
-										{isStreakDay.isCompleted && (
-											<View className="flex items-center justify-center bg-primary-100 rounded-full p-2.5">
-												<Check size={16} color={"#FFFFFF"} />
-											</View>
-										)}
-
-										{isStreakDay.isTodayTarget && (
-											<View className="flex items-center justify-center bg-primary-100/20 rounded-full p-1">
-												<View className="flex items-center justify-center size-8 bg-white rounded-full border-3 border-primary-100 shadow-lg shadow-primary-100/20">
-													<View className="size-3 bg-primary-100 rounded-full" />
-												</View>
-											</View>
-										)}
-
-										{isStreakDay.isFuture && (
-											<View className="size-8 rounded-full bg-gray-100 border-2 border-dashed border-gray-300" />
-										)}
-									</View>
-								);
-							})}
-						</View>
-
-						<View className="flex flex-row items-center justify-center gap-1.5 py-2 px-3 bg-amber-50 rounded-full mx-auto w-fit border border-amber-100">
-							<Zap color={"#D97706"} size={18} />
-
-							<Text className="text-sm font-medium text-amber-600">
-								Don't break the chain!
-							</Text>
-						</View>
-					</View>
-
-					<View className="flex flex-row items-center justify-center gap-2 bg-primary-100 py-4 px-6 rounded-full shadow-lg shadow-primary-100/25">
-						<Text className="text-lg font-bold text-white">
-							Start Practice Interview
-						</Text>
-
-						<ArrowRight size={20} color={"#FFFFFF"} />
-					</View>
-
-					<TouchableOpacity onPress={() => handleStreakSheetClose()}>
-						<Text className="flex text-center w-full items-center justify-center text-gray-500 text-base font-medium">
-							Maybe later
-						</Text>
-					</TouchableOpacity>
-				</View>
-			</BottomSheetPopup>
+			<ItemBottomSheet
+				sheetRef={itemSheetRef}
+				snapPoints={snapPoints}
+				handleSheetRefClose={handleSheetRefClose}
+				item={selectedInterview}
+			/>
 		</UniSafeAreaView>
 	);
 }
