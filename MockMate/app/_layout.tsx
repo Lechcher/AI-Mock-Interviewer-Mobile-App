@@ -38,7 +38,7 @@ export default function RootLayout() {
 			<GestureHandlerRootView>
 				<BottomSheetModalProvider>
 					<UniSafeAreaProvider className="font-lexend bg-background">
-						<StatusBar style="auto" />
+						<StatusBar style="dark" />
 						<Stack screenOptions={{ headerShown: false }} />
 					</UniSafeAreaProvider>
 				</BottomSheetModalProvider>
