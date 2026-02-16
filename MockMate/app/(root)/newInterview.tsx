@@ -1,10 +1,11 @@
-import Header from "@/components/Header";
+import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { BadgeCheck, Check, Minus, Plus } from "lucide-react-native";
+import { Controller, useForm } from "react-hook-form";
 import { difficulties, industries, status } from "@/constants/data";
+
+import Header from "@/components/Header";
 import { UniSafeAreaView } from "@/core/customUniwind";
 import { router } from "expo-router";
-import { BadgeCheck, Check } from "lucide-react-native";
-import { Controller, useForm } from "react-hook-form";
-import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 const NewInterview = () => {
 	const {
@@ -17,7 +18,7 @@ const NewInterview = () => {
 			focusArea: "User Research & Interaction Design",
 			industry: "",
 			difficulty: "Easy",
-			questions: 5,
+			questionCount: 5,
 		},
 	});
 
@@ -193,10 +194,44 @@ System Design..."
 					</View>
 
 					<View>
-						<View>
-							<Text className="text-lg font-bold">Number of Questions</Text>
-							<Text>Estimated time: ~{} min</Text>
-						</View>
+						<Controller
+							control={control}
+							name="questionCount"
+							render={({ field: { onChange, value } }) => (
+								<View className="flex flex-row items-center justify-between p-4 bg-white border border-slate-200 rounded-lg">
+									<View className="text-lg font-medium">
+										<Text className="text-lg font-bold">
+											Number of Questions
+										</Text>
+										<Text className="text-xs text-[#49659C]">
+											Estimated time: ~{value * 3} min
+										</Text>
+									</View>
+
+									<View className="flex flex-row items-center justify-center bg-blue-100 rounded-lg gap-3 p-1">
+										<TouchableOpacity
+											className="p-2 bg-primary-100 rounded-lg"
+											onPress={() => value > 1 && onChange(value - 1)}
+										>
+											<Minus color={"#FFFFFF"} size={24} />
+										</TouchableOpacity>
+
+										<View>
+											<Text className="text-xl font-bold text-[#49659C]">
+												{value}
+											</Text>
+										</View>
+
+										<TouchableOpacity
+											className="p-2 bg-primary-100 rounded-lg"
+											onPress={() => onChange(value + 1)}
+										>
+											<Plus color={"#FFFFFF"} size={24} />
+										</TouchableOpacity>
+									</View>
+								</View>
+							)}
+						/>
 					</View>
 				</View>
 			</View>
