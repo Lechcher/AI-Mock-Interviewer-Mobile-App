@@ -57,7 +57,7 @@ const Explore = () => {
 				}
 			/>
 
-			<View className="bg-background px-4">
+			<View className="bg-background px-4 h-full">
 				<FlatList
 					data={filteredCards.slice(0, limit)}
 					renderItem={({ item }) => (
