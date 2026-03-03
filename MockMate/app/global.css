@@ -2,17 +2,19 @@
 @import "uniwind";
 
 @theme {
-    /* Fonts */
-    --font-lexend: "Lexend", sans-serif;
+	/* Fonts */
+	--font-lexend: "Lexend", sans-serif;
 
-    /* Colors */
-    --color-primary-100: #2563EB;
-    --color-primary-200: #DBEAFE;
-    --color-primary-300: rgba(13, 89, 242, 0.1);
+	/* Colors */
+	--color-primary-100: #2563eb;
+	--color-primary-200: #dbeafe;
+	--color-primary-300: rgba(13, 89, 242, 0.1);
 
-    --color-black: #0F172A;
-    --color-black-100: #4B5563;
-    --color-black-200: #64748B;
+	--color-black: #0f172a;
+	--color-black-100: #4b5563;
+	--color-black-200: #64748b;
 
-    --color-background: #F5F6F8;
+	--color-dusk-blue: #49659c;
+
+	--color-background: #f5f6f8;
 }

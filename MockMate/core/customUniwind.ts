@@ -1,5 +1,10 @@
-import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from "@gorhom/bottom-sheet";
+import BottomSheet, {
+	BottomSheetBackdrop,
+	BottomSheetView,
+} from "@gorhom/bottom-sheet";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+
+import { ScrollView } from "react-native";
 import { withUniwind } from "uniwind";
 
 export const UniSafeAreaView = withUniwind(SafeAreaView);
@@ -11,3 +16,5 @@ export const UniBottomSheetBackdrop = withUniwind(BottomSheetBackdrop);
 export const UniBottomSheet = withUniwind(BottomSheet);
 
 export const UniBottomSheetView = withUniwind(BottomSheetView);
+
+export const UniScrollView = withUniwind(ScrollView);
