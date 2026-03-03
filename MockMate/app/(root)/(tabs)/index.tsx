@@ -100,7 +100,7 @@ export default function Index() {
 						</View>
 					</TouchableOpacity>
 
-					<TouchableOpacity onPress={() => router.push("/vip")}>
+					<TouchableOpacity onPress={() => router.push("/vip/vipStatus")}>
 						<View
 							className={`flex flex-row w-fit items-center justify-center gap-1 px-2 py-1.5 rounded-full border ${
 								status.vipStatus

@@ -4,26 +4,46 @@ import {
 	BadgeCheck,
 	Banknote,
 	ChartSpline,
+	CircleQuestionMark,
 	Clock,
 	Crown,
 	Gem,
+	Globe,
 	GraduationCap,
 	HeartPulse,
+	History,
 	List,
 	ListTodo,
+	Lock,
+	LogOut,
 	Megaphone,
 	Package,
 	PencilRuler,
+	Settings,
 	Snowflake,
 	SquareTerminal,
-	Store
+	Store,
 } from "lucide-react-native";
 
 export const status = {
 	streaks: 6,
 	gems: 450,
-	vipStatus: false,
+	vipStatus: true,
+	vipPlan: "yearly",
+	vipExpiryDate: function () {
+		if (this.vipPlan === "yearly") {
+			const date = new Date();
+			date.setFullYear(date.getFullYear() + 1);
+			return date;
+		} else if (this.vipPlan === "monthly") {
+			const date = new Date();
+			date.setMonth(date.getMonth() + 1);
+			return date;
+		}
+	},
 	hasLearnedToday: false,
+	hasLearned: 24,
+	xpEarned: 1250,
 };
 
 export const weekDaysLabels = {
@@ -407,13 +427,85 @@ export const vipPlanData = {
 	Yearly: {
 		id: 1,
 		title: "Yearly Plan",
-		price: (10 * 12),
-		priceDiscount: ((10 * 12) / 2),
-		priceForEachMonth: (10 / 2),
+		price: 10 * 12,
+		priceDiscount: (10 * 12) / 2,
+		priceForEachMonth: 10 / 2,
 	},
 	Monthly: {
 		id: 2,
 		title: "Monthly Plan",
 		price: 10,
 	},
-}
+};
+
+export const profileSettingsListData = {
+	career: {
+		title: "Career",
+		items: [
+			{
+				icon: History,
+				iconColor: "#0D59F2",
+				titleItem: "Interview History",
+				onPress() {
+					console.log("Interview History");
+				},
+			},
+			{
+				icon: List,
+				iconColor: "#9333EA",
+				titleItem: "Saved Interviews",
+				onPress() {
+					console.log("Saved Interviews");
+				},
+			},
+		],
+	},
+	appSettings: {
+		title: "App Settings",
+		items: [
+			{
+				icon: Settings,
+				titleItem: "General Settings",
+				onPress() {
+					console.log("General Settings");
+				},
+			},
+			{
+				icon: Lock,
+				titleItem: "Security",
+				onPress() {
+					console.log("Security");
+				},
+			},
+			{
+				icon: Globe,
+				titleItem: "Language",
+				currentLanguage: "English",
+				onPress() {
+					console.log("Language");
+				},
+			},
+		],
+	},
+	support: {
+		title: "Support",
+		items: [
+			{
+				icon: CircleQuestionMark,
+				iconColor: "#059669",
+				titleItem: "Help Center",
+				onPress() {
+					console.log("Help Center");
+				},
+			},
+			{
+				icon: LogOut,
+				iconColor: "#EF4444",
+				titleItem: "Log Out",
+				onPress() {
+					console.log("Log Out");
+				},
+			},
+		],
+	},
+};
