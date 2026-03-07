@@ -1,11 +1,12 @@
-import { useNavigation } from "@react-navigation/native";
-import { ChevronLeft } from "lucide-react-native";
-import type { ReactNode } from "react";
 import { TouchableOpacity, View } from "react-native";
 
+import { ChevronLeft } from "lucide-react-native";
+import type { ReactNode } from "react";
+import { useNavigation } from "@react-navigation/native";
+
 interface HeaderProps {
-	middle: ReactNode;
-	end: ReactNode;
+	middle?: ReactNode;
+	end?: ReactNode;
 }
 
 const Header = ({ middle, end }: HeaderProps) => {

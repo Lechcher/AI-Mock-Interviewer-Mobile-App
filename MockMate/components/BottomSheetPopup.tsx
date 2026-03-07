@@ -10,9 +10,11 @@ import {
 	UniBottomSheetBackdrop,
 	UniBottomSheetView,
 } from "@/core/customUniwind";
+import { useInterviewSetup } from "@/core/interviewContext";
 import Icons from "@/lib/icons";
 import type BottomSheet from "@gorhom/bottom-sheet";
 import type { BottomSheetBackdropProps } from "@gorhom/bottom-sheet";
+import { router } from "expo-router";
 import {
 	ArrowRight,
 	BriefcaseBusiness,
@@ -286,10 +288,19 @@ export const ItemBottomSheet = ({
 	handleSheetRefClose,
 	item,
 }: ItemBottomSheetProps) => {
+	const { setInterviewData } = useInterviewSetup();
+
 	if (!item) return null;
 
 	const industry = industries[item.industry as keyof typeof industries];
 	const difficulty = difficulties[item.difficulty as keyof typeof difficulties];
+
+	const handleStartInterview = () => {
+		setInterviewData(item);
+		handleSheetRefClose();
+
+		router.push("/(root)/modeSelection");
+	};
 
 	return (
 		<BottomSheetPopup
@@ -389,7 +400,10 @@ export const ItemBottomSheet = ({
 
 				{/* Action Buttons */}
 				<View className="flex flex-col gap-3">
-					<TouchableOpacity className="flex flex-row items-center justify-center gap-2 bg-primary-100 py-4 px-6 rounded-3xl shadow-lg shadow-primary-100/25">
+					<TouchableOpacity
+						className="flex flex-row items-center justify-center gap-2 bg-primary-100 py-4 px-6 rounded-3xl shadow-lg shadow-primary-100/25"
+						onPress={handleStartInterview}
+					>
 						<Text className="text-lg font-bold text-white">Start Now</Text>
 						<ArrowRight size={20} color={"#FFFFFF"} />
 					</TouchableOpacity>

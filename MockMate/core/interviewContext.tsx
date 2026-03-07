@@ -1,11 +1,19 @@
-import type React from "react";
 import { createContext, useContext, useState } from "react";
 
-const InterviewContext = createContext({
+import type React from "react";
+
+interface InterviewContextType {
+	interviewData: any;
+	setInterviewData: (data: any) => void;
+	interviewMode: "chat" | "voice";
+	setInterviewMode: (mode: "chat" | "voice") => void;
+}
+
+const InterviewContext = createContext<InterviewContextType>({
 	interviewData: null,
-	setInterviewData: (data: any) => {},
-	interviewMode: null,
-	setInterviewMode: (mode: any) => {},
+	setInterviewData: () => {},
+	interviewMode: null as any,
+	setInterviewMode: () => {},
 });
 
 export const InterviewProvider = ({
@@ -14,7 +22,9 @@ export const InterviewProvider = ({
 	children: React.ReactNode;
 }) => {
 	const [interviewData, setInterviewData] = useState(null);
-	const [interviewMode, setInterviewMode] = useState(null);
+	const [interviewMode, setInterviewMode] = useState<"chat" | "voice">(
+		null as any,
+	);
 
 	return (
 		<InterviewContext.Provider
@@ -30,5 +40,4 @@ export const InterviewProvider = ({
 	);
 };
 
-// Custom hook for easier use
 export const useInterviewSetup = () => useContext(InterviewContext);

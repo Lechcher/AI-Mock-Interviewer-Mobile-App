@@ -1,14 +1,16 @@
-import { UniSafeAreaProvider } from "@/core/customUniwind";
 import "./global.css";
 
-import CustomSplashScreen from "@/components/SplashScreen";
-import GlobalProvider from "@/core/global-provider";
-import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
-import { useFonts } from "expo-font";
 import { SplashScreen, Stack } from "expo-router";
-import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
+
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import CustomSplashScreen from "@/components/SplashScreen";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import GlobalProvider from "@/core/global-provider";
+import { InterviewProvider } from "@/core/interviewContext";
+import { StatusBar } from "expo-status-bar";
+import { UniSafeAreaProvider } from "@/core/customUniwind";
+import { useFonts } from "expo-font";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -35,14 +37,16 @@ export default function RootLayout() {
 
 	return (
 		<GlobalProvider>
-			<GestureHandlerRootView>
-				<BottomSheetModalProvider>
-					<UniSafeAreaProvider className="font-lexend bg-background">
-						<StatusBar style="dark" />
-						<Stack screenOptions={{ headerShown: false }} />
-					</UniSafeAreaProvider>
-				</BottomSheetModalProvider>
-			</GestureHandlerRootView>
+			<InterviewProvider>
+				<GestureHandlerRootView>
+					<BottomSheetModalProvider>
+						<UniSafeAreaProvider className="font-lexend bg-background">
+							<StatusBar style="dark" />
+							<Stack screenOptions={{ headerShown: false }} />
+						</UniSafeAreaProvider>
+					</BottomSheetModalProvider>
+				</GestureHandlerRootView>
+			</InterviewProvider>
 		</GlobalProvider>
 	);
 }

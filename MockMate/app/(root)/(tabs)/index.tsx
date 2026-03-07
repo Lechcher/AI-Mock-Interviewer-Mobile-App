@@ -1,15 +1,5 @@
-import {
-	ItemBottomSheet,
-	StreakBottomSheet,
-} from "@/components/BottomSheetPopup";
-import { Card, FeaturedCard } from "@/components/Card";
-import { cardsData, featuredCardsData, status } from "@/constants/data";
-import { UniSafeAreaView } from "@/core/customUniwind";
-import { useGlobalContext } from "@/core/global-provider";
-import type BottomSheet from "@gorhom/bottom-sheet";
-import { Redirect, useRouter } from "expo-router";
 import { BadgeCheck, Flame, Gem, LockKeyhole, Plus } from "lucide-react-native";
-import { useMemo, useRef, useState } from "react";
+import { Card, FeaturedCard } from "@/components/Card";
 import {
 	FlatList,
 	Image,
@@ -18,6 +8,17 @@ import {
 	TouchableOpacity,
 	View,
 } from "react-native";
+import {
+	ItemBottomSheet,
+	StreakBottomSheet,
+} from "@/components/BottomSheetPopup";
+import { Redirect, useRouter } from "expo-router";
+import { cardsData, featuredCardsData, status } from "@/constants/data";
+import { useMemo, useRef, useState } from "react";
+
+import type BottomSheet from "@gorhom/bottom-sheet";
+import { UniSafeAreaView } from "@/core/customUniwind";
+import { useGlobalContext } from "@/core/global-provider";
 
 export default function Index() {
 	// Global user and authentication state
@@ -43,7 +44,7 @@ export default function Index() {
 		(typeof cardsData)[0] | null
 	>(null);
 
-	const snapPoints = useMemo(() => ["80%"], []);
+	const snapPoints = useMemo(() => ["85%"], []);
 
 	// If user is not authenticated, redirect to auth screen
 	if (!loading && !isLoggedIn) return <Redirect href={"/auth"} />;
