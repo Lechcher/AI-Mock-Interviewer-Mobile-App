@@ -2,7 +2,6 @@ import { BadgeCheck, Flame, Gem, LockKeyhole, Plus } from "lucide-react-native";
 import { Card, FeaturedCard } from "@/components/Card";
 import {
 	FlatList,
-	Image,
 	RefreshControl,
 	Text,
 	TouchableOpacity,
@@ -18,6 +17,7 @@ import { useMemo, useRef, useState } from "react";
 
 import type BottomSheet from "@gorhom/bottom-sheet";
 import { UniSafeAreaView } from "@/core/customUniwind";
+import { UniversalAvatar } from "@/components/UniversalAvatar";
 import { useGlobalContext } from "@/core/global-provider";
 
 export default function Index() {
@@ -44,7 +44,7 @@ export default function Index() {
 		(typeof cardsData)[0] | null
 	>(null);
 
-	const snapPoints = useMemo(() => ["85%"], []);
+	const snapPoints = useMemo(() => ["50%", "70%", "80%"], []);
 
 	// If user is not authenticated, redirect to auth screen
 	if (!loading && !isLoggedIn) return <Redirect href={"/auth"} />;
@@ -72,10 +72,7 @@ export default function Index() {
 			<View className="px-4 font-lexend flex flex-row items-center justify-between gap-4 py-4 h-fit">
 				<TouchableOpacity onPress={() => router.push("/profile")}>
 					<View className="relative">
-						<Image
-							source={{ uri: user?.avatar }}
-							className="size-10 rounded-full"
-						/>
+						<UniversalAvatar uri={user?.avatar} size={40} />
 
 						<View className="absolute bottom-0 right-0 size-3 bg-green-500 rounded-full border-2 border-white" />
 					</View>
@@ -137,8 +134,7 @@ export default function Index() {
 					refreshControl={
 						<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
 					}
-					contentContainerClassName="flex gap-3 mt-3"
-					contentContainerStyle={{ paddingBottom: 79 }}
+					contentContainerClassName="flex gap-3 mt-3 pb-[79px]"
 					ListHeaderComponent={
 						<View>
 							<Text className="mt-5 text-lg font-bold">

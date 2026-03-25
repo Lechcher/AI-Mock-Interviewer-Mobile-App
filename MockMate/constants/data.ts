@@ -25,8 +25,11 @@ import {
 	Store,
 } from "lucide-react-native";
 
+import { logout } from "@/core/appwrite";
+
 export const status = {
 	streaks: 6,
+	streaksFreeze: 2,
 	gems: 450,
 	vipStatus: true,
 	vipPlan: "yearly",
@@ -503,7 +506,7 @@ export const profileSettingsListData = {
 				iconColor: "#EF4444",
 				titleItem: "Log Out",
 				onPress() {
-					console.log("Log Out");
+					logout();
 				},
 			},
 		],

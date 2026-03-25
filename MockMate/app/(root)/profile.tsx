@@ -5,12 +5,13 @@ import {
 	Flame,
 	GraduationCap,
 } from "lucide-react-native";
-import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { profileSettingsListData, status } from "@/constants/data";
 
 import Header from "@/components/Header";
 import SettingList from "@/components/SettingList";
 import { UniSafeAreaView } from "@/core/customUniwind";
+import { UniversalAvatar } from "@/components/UniversalAvatar";
 import { useGlobalContext } from "@/core/global-provider";
 
 const Profile = () => {
@@ -26,18 +27,12 @@ const Profile = () => {
 			<View className="bg-background h-full">
 				<ScrollView
 					className="flex flex-col mb-35"
-					contentContainerStyle={{
-						alignItems: "center",
-						padding: 16,
-					}}
+					contentContainerClassName="items-center p-4"
 					showsVerticalScrollIndicator={false}
 				>
 					<View className="flex flex-col gap-4 items-center">
 						<View className="relative aspect-square border-white border-4 rounded-full shadow-lg">
-							<Image
-								source={{ uri: user?.avatar }}
-								className="size-25 rounded-full"
-							/>
+							<UniversalAvatar uri={user?.avatar} size={100} />
 
 							<View className="absolute -bottom-1 right-0 bg-green-500 rounded-full p-1 border-4 border-white">
 								<CircleCheck size={16} color="white" />

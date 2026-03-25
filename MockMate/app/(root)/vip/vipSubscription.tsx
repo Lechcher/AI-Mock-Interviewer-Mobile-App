@@ -1,8 +1,4 @@
-import { vipPlanData } from "@/constants/data";
-import { UniSafeAreaView } from "@/core/customUniwind";
-import { useRouter } from "expo-router";
 import { ArrowRight, CheckCircle2, Crown, X } from "lucide-react-native";
-import { useState } from "react";
 import {
 	ScrollView,
 	StatusBar,
@@ -10,6 +6,11 @@ import {
 	TouchableOpacity,
 	View,
 } from "react-native";
+
+import { UniSafeAreaView } from "@/core/customUniwind";
+import { useRouter } from "expo-router";
+import { useState } from "react";
+import { vipPlanData } from "@/constants/data";
 
 const VipPage = () => {
 	const router = useRouter();
@@ -43,7 +44,7 @@ const VipPage = () => {
 			/>
 
 			<ScrollView
-				contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}
+				contentContainerClassName="flex-grow pb-10"
 				showsVerticalScrollIndicator={false}
 			>
 				{/* Header */}

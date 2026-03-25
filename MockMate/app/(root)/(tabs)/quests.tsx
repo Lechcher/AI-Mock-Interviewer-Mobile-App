@@ -1,10 +1,11 @@
-import { QuestCard } from "@/components/Card";
-import Header from "@/components/Header";
-import { questData, status } from "@/constants/data";
-import { UniSafeAreaView } from "@/core/customUniwind";
 import { Flame, Gem } from "lucide-react-native";
-import { useEffect, useMemo, useState } from "react";
 import { FlatList, Text, View } from "react-native";
+import { questData, status } from "@/constants/data";
+import { useEffect, useMemo, useState } from "react";
+
+import Header from "@/components/Header";
+import { QuestCard } from "@/components/Card";
+import { UniSafeAreaView } from "@/core/customUniwind";
 
 const TimeBox = ({ value, label }: { value: string; label: string }) => (
 	<View className="flex flex-col items-center gap-1 flex-1">
@@ -108,8 +109,7 @@ const Quests = () => {
 					renderItem={({ item }) => <QuestCard card={item} />}
 					keyExtractor={(item) => item.title}
 					showsVerticalScrollIndicator={false}
-					contentContainerClassName="flex gap-3 mt-3"
-					contentContainerStyle={{ paddingBottom: 79 }}
+					contentContainerClassName="flex gap-3 mt-3 pb-[79px]"
 				/>
 			</View>
 		</UniSafeAreaView>

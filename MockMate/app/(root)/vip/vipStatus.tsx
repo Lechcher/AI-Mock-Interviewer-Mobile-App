@@ -1,6 +1,3 @@
-import { status } from "@/constants/data";
-import { UniSafeAreaView } from "@/core/customUniwind";
-import { useRouter } from "expo-router";
 import {
 	CalendarRange,
 	CheckCircle2,
@@ -15,6 +12,10 @@ import {
 	TouchableOpacity,
 	View,
 } from "react-native";
+
+import { UniSafeAreaView } from "@/core/customUniwind";
+import { status } from "@/constants/data";
+import { useRouter } from "expo-router";
 
 const VipPage = () => {
 	const router = useRouter();
@@ -45,7 +46,7 @@ const VipPage = () => {
 			/>
 
 			<ScrollView
-				contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}
+				contentContainerClassName="flex-grow pb-10"
 				showsVerticalScrollIndicator={false}
 			>
 				{/* Header */}

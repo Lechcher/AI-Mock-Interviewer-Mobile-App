@@ -15,6 +15,16 @@
       "source": "expo/skills",
       "sourceType": "github",
       "computedHash": "6c14e4efb34a9c4759e8b959f82dec328f87dd89a022957c6737086984b9b106"
+    },
+    "uniwind": {
+      "source": "uni-stack/uniwind/skills/uniwind",
+      "sourceType": "github",
+      "computedHash": ""
+    },
+    "migrate-nativewind-to-uniwind": {
+      "source": "uni-stack/uniwind/skills/migrate-nativewind-to-uniwind",
+      "sourceType": "github",
+      "computedHash": ""
     }
   }
 }

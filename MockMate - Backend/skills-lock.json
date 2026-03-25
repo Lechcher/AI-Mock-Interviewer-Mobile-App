@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "skills": {
+    "hono-backend-skill": {
+      "source": "Lechcher/skills",
+      "sourceType": "github",
+      "computedHash": "ec80656fd61e874e3ebe65957e60f6c699b30ca5cdaaa9867e0dad96306ae436"
+    },
+    "spec-kit-skill": {
+      "source": "Lechcher/skills",
+      "sourceType": "github",
+      "computedHash": "10946a644663ef82e533d05965ad588726917cafa7493727d54f9df588542dc9"
+    },
+    "varlock-skill": {
+      "source": "Lechcher/skills",
+      "sourceType": "github",
+      "computedHash": "a051b5f45eeec28a5e75f54892b32d666ba7f61d3c2b385e20f6d2c3815f59ea"
+    }
+  }
+}
