@@ -1,17 +1,3 @@
-import {
-	type cardsData,
-	difficulties,
-	industries,
-	status,
-	weekDaysLabels,
-} from "@/constants/data";
-import {
-	UniBottomSheet,
-	UniBottomSheetBackdrop,
-	UniBottomSheetView,
-} from "@/core/customUniwind";
-import { useInterviewSetup } from "@/core/interviewContext";
-import Icons from "@/lib/icons";
 import type BottomSheet from "@gorhom/bottom-sheet";
 import type { BottomSheetBackdropProps } from "@gorhom/bottom-sheet";
 import { router } from "expo-router";
@@ -29,6 +15,21 @@ import {
 } from "lucide-react-native";
 import { type ReactNode, type RefObject, useCallback } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
+import {
+	type cardsData,
+	difficulties,
+	industries,
+	status,
+	weekDaysLabels,
+} from "@/constants/data";
+import {
+	UniBottomSheet,
+	UniBottomSheetBackdrop,
+	UniBottomSheetView,
+} from "@/core/customUniwind";
+import { useInterviewSetup } from "@/core/interviewContext";
+import { useRevenueCat } from "@/hooks/useRevenueCat";
+import Icons from "@/lib/icons";
 
 interface BottomSheetPopupProps {
 	children: ReactNode;
@@ -98,6 +99,8 @@ export const StreakBottomSheet = ({
 	snapPoints,
 	handleSheetRefClose,
 }: BottomSheetProps) => {
+	const { isPro } = useRevenueCat();
+
 	const currentDayPosition = status.streaks % 7 === 0 ? 7 : status.streaks % 7;
 
 	const weekDaysLabelsArray = Object.values(weekDaysLabels);
@@ -265,7 +268,7 @@ export const StreakBottomSheet = ({
 						Start Practice Interview
 					</Text>
 
-					{status.vipStatus && <ArrowRight size={20} color={"#FFFFFF"} />}
+					{isPro && <ArrowRight size={20} color={"#FFFFFF"} />}
 				</View>
 
 				<TouchableOpacity onPress={() => handleSheetRefClose()}>

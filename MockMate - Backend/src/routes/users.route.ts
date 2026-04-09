@@ -1,19 +1,24 @@
+import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
-import { authMiddleware } from "../middleware/auth.middleware.js";
-import { dbMiddleware } from "../middleware/db.middleware.js";
 import z, { type ZodError } from "zod";
 import { getProfile, updateProfile } from "../controllers/users.controller.js";
-import { zValidator } from "@hono/zod-validator";
+import { authMiddleware } from "../middleware/auth.middleware.js";
+import { dbMiddleware } from "../middleware/db.middleware.js";
 
 export const usersRoutes = new Hono();
 
 usersRoutes.use("*", dbMiddleware);
 usersRoutes.use("*", authMiddleware);
 
-const updateProfileSchema = z.object({
-	name: z.string().min(1, "Username is required").max(255).optional(),
-	avatarUrl: z.string().url("Url must be a valid URL").optional(),
-});
+const updateProfileSchema = z
+	.object({
+		name: z.string().min(1, "Username is required").max(255).optional(),
+		avatarUrl: z.url({ message: "Url must be a valid URL" }).optional(),
+	})
+	.refine((data) => data.name !== undefined || data.avatarUrl !== undefined, {
+		message: "At least one field must be provided",
+		path: [],
+	});
 
 usersRoutes.get("/profile", getProfile);
 

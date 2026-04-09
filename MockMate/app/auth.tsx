@@ -1,13 +1,24 @@
-import { login } from "@/core/appwrite";
+import {
+	ActivityIndicator,
+	Alert,
+	Image,
+	Text,
+	TouchableOpacity,
+	View,
+} from "react-native";
+import { getCurrentUser, login } from "@/core/appwrite";
+
+import { Redirect } from "expo-router";
 import { UniSafeAreaView } from "@/core/customUniwind";
-import { useGlobalContext } from "@/core/global-provider";
 import icons from "@/lib/icons";
 import images from "@/lib/images";
-import { Redirect } from "expo-router";
-import { Alert, Image, Text, TouchableOpacity, View } from "react-native";
+import { useGlobalContext } from "@/core/global-provider";
+import { useSyncProfile } from "@/hooks/useSyncProfile";
 
 const Auth = () => {
 	const { refetch, loading, isLoggedIn } = useGlobalContext();
+
+	const { syncProfile, isSyncing } = useSyncProfile();
 
 	// If not loading and already logged in, redirect to the home screen
 	if (!loading && isLoggedIn) return <Redirect href={"/"} />;
@@ -15,16 +26,32 @@ const Auth = () => {
 	// Handler for the Google login button press
 	const handleLogin = async () => {
 		// Attempt to log in using the Appwrite service
-		const result = await login();
+		const isLoginSuccess = await login();
 
 		// If login is successful, refetch global context data
-		if (result) {
-			await refetch({});
+		if (isLoginSuccess) {
+			const user = await getCurrentUser();
+
+			if (user) {
+				await syncProfile({
+					name: user.name,
+					avatar: user.avatar,
+				});
+
+				await refetch({});
+			} else {
+				Alert.alert(
+					"Login Failed",
+					"Unable to retrieve user information. Please try again.",
+				);
+			}
 		} else {
 			// If login fails, display an alert to the user
 			Alert.alert("Login Failed", "Unable to login. Please try again.");
 		}
 	};
+
+	const isProcessing = loading || isSyncing;
 
 	return (
 		<UniSafeAreaView className="flex flex-col px-4 h-full items-center justify-center bg-background">
@@ -51,7 +78,7 @@ const Auth = () => {
 						</Text>
 					</View>
 
-					<View className="w-full aspect-square relative max-h-[360px] rounded-3xl overflow-hidden shadow-2xl shadow-primary-100/10">
+					<View className="w-full aspect-square relative max-h-90 rounded-3xl overflow-hidden shadow-2xl shadow-primary-100/10">
 						<View className="absolute inset-0 bg-linear-to-tr from-primary-300/20 to-transparent mix-blend-overlay"></View>
 						<Image
 							source={images.wellcomeImage}
@@ -76,20 +103,30 @@ const Auth = () => {
 					<View className="flex flex-col gap-6">
 						{/* Google login button */}
 						<TouchableOpacity
-							className="bg-white shadow-zinc-300 rounded-full w-full py-4 mt-5"
+							className={`bg-white shadow-zinc-300 rounded-full w-full py-4 mt-5 ${isProcessing ? "opacity-70" : ""}`}
 							onPress={handleLogin} // Attach the handleLogin function to the button press
+							disabled={isProcessing} // Disable the button when processing
 						>
 							{/* Container for the Google icon and text */}
 							<View className="flex flex-row items-center justify-center gap-4">
-								<Image
-									source={icons.google}
-									className="h-5 w-5"
-									resizeMode="contain"
-								/>
-								{/* Button text */}
-								<Text className="text-base font-semibold text-black">
-									Continue with Google
-								</Text>
+								{isProcessing ? (
+									<ActivityIndicator
+										className="text-primary-100"
+										size={"small"}
+									/>
+								) : (
+									<>
+										<Image
+											source={icons.google}
+											className="h-5 w-5"
+											resizeMode="contain"
+										/>
+										{/* Button text */}
+										<Text className="text-base font-semibold text-black">
+											Continue with Google
+										</Text>
+									</>
+								)}
 							</View>
 						</TouchableOpacity>
 

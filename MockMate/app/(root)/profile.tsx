@@ -1,3 +1,6 @@
+import * as ImageManipulator from "expo-image-manipulator";
+import * as ImagePicker from "expo-image-picker";
+import { useRouter } from "expo-router";
 import {
 	Bell,
 	CircleCheck,
@@ -5,17 +8,120 @@ import {
 	Flame,
 	GraduationCap,
 } from "lucide-react-native";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
-import { profileSettingsListData, status } from "@/constants/data";
-
+import { useState } from "react";
+import {
+	ActivityIndicator,
+	Alert,
+	Modal,
+	ScrollView,
+	Text,
+	TextInput,
+	TouchableOpacity,
+	View,
+} from "react-native";
 import Header from "@/components/Header";
 import SettingList from "@/components/SettingList";
-import { UniSafeAreaView } from "@/core/customUniwind";
 import { UniversalAvatar } from "@/components/UniversalAvatar";
+import { profileSettingsListData } from "@/constants/data";
+import { uploadAvatarToAppwrite } from "@/core/appwrite";
+import { UniSafeAreaView } from "@/core/customUniwind";
 import { useGlobalContext } from "@/core/global-provider";
+import { useProfile } from "@/hooks/useProfile";
+import { useRevenueCat } from "@/hooks/useRevenueCat";
+import { useSyncProfile } from "@/hooks/useSyncProfile";
 
 const Profile = () => {
+	const router = useRouter();
 	const { user } = useGlobalContext();
+	const { isPro, proExpiryDate, presentCustomerCenter, isPurchaseInProgress } =
+		useRevenueCat();
+
+	const { profile, isLoading } = useProfile();
+	const { syncProfile, isSyncing } = useSyncProfile();
+
+	const [isNameModalVisible, setNameModalVisible] = useState(false);
+	const [newName, setNewName] = useState("");
+
+	const handleMembershipPress = async () => {
+		if (!isPro) {
+			router.push("/vip/vipSubscription");
+			return;
+		}
+
+		try {
+			await presentCustomerCenter();
+		} catch (error) {
+			const message =
+				error instanceof Error
+					? error.message
+					: "Unable to open customer center.";
+			Alert.alert("Subscription management error", message);
+		}
+	};
+
+	const handleEditAvatar = async () => {
+		const permissions = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+		if (!permissions.granted) {
+			Alert.alert("Permission to access media library is required!");
+			return;
+		}
+
+		const pickerResult = await ImagePicker.launchImageLibraryAsync({
+			mediaTypes: "images",
+			allowsEditing: true,
+			aspect: [1, 1],
+			quality: 1,
+		});
+
+		if (!pickerResult.canceled) {
+			try {
+				const originalUri = pickerResult.assets[0].uri;
+
+				const compressedImage = await ImageManipulator.manipulateAsync(
+					originalUri,
+					[{ resize: { width: 500, height: 500 } }],
+					{ compress: 0.7, format: ImageManipulator.SaveFormat.JPEG },
+				);
+
+				const uploadUri = await uploadAvatarToAppwrite(compressedImage.uri);
+
+				if (uploadUri) {
+					await syncProfile({
+						name: profile?.name || user?.name || "MockMate User",
+						avatar: uploadUri,
+					});
+				}
+			} catch (error) {
+				Alert.alert(`Error uploading avatar: ${error}`, "Please try again.");
+			}
+		}
+	};
+
+	const handleSaveName = async () => {
+		if (newName.trim() === "") {
+			Alert.alert("Name cannot be empty.");
+			return;
+		}
+
+		try {
+			await syncProfile({
+				name: newName,
+				avatar: profile?.avatar || user?.avatar || "",
+			});
+			setNameModalVisible(false);
+		} catch (error) {
+			Alert.alert(`Error updating name: ${error}`, "Please try again.");
+		}
+	};
+
+	if (isLoading) {
+		return (
+			<UniSafeAreaView className="bg-white flex-1 items-center justify-center">
+				<ActivityIndicator size="large" color="#2563EB" />
+			</UniSafeAreaView>
+		);
+	}
 
 	return (
 		<UniSafeAreaView className="bg-white">
@@ -32,7 +138,16 @@ const Profile = () => {
 				>
 					<View className="flex flex-col gap-4 items-center">
 						<View className="relative aspect-square border-white border-4 rounded-full shadow-lg">
-							<UniversalAvatar uri={user?.avatar} size={100} />
+							<TouchableOpacity onPress={handleEditAvatar} disabled={isSyncing}>
+								{isSyncing ? (
+									<ActivityIndicator size="small" color="#2563EB" />
+								) : (
+									<UniversalAvatar
+										uri={profile?.avatar || user?.avatar}
+										size={100}
+									/>
+								)}
+							</TouchableOpacity>
 
 							<View className="absolute -bottom-1 right-0 bg-green-500 rounded-full p-1 border-4 border-white">
 								<CircleCheck size={16} color="white" />
@@ -40,9 +155,20 @@ const Profile = () => {
 						</View>
 
 						<View className="flex flex-col items-center">
-							<Text className="text-2xl font-bold">{user?.name}</Text>
+							<TouchableOpacity
+								onPress={() => {
+									setNewName(profile?.name || user?.name || "");
+									setNameModalVisible(true);
+								}}
+							>
+								<Text className="text-2xl font-bold">
+									{profile?.name || user?.name}
+								</Text>
+							</TouchableOpacity>
 
-							<Text className="font-medium text-dusk-blue">{user?.email}</Text>
+							<Text className="font-medium text-dusk-blue">
+								{profile?.email || user?.email}
+							</Text>
 						</View>
 
 						<View className="flex flex-row gap-3 w-full justify-between items-center">
@@ -51,7 +177,7 @@ const Profile = () => {
 									<Flame size={24} color={"#F97316"} />
 
 									<Text className="text-orange-500 text-2xl font-bold">
-										{status.streaks}
+										{profile?.dayStreak || 0}
 									</Text>
 								</View>
 
@@ -65,7 +191,7 @@ const Profile = () => {
 									<GraduationCap size={24} color={"#0D59F2"} />
 
 									<Text className="text-primary-100 text-2xl font-bold">
-										{status.hasLearned}
+										{profile?.interviewsLearnedCount || 0}
 									</Text>
 								</View>
 
@@ -81,7 +207,7 @@ const Profile = () => {
 							</Text>
 
 							<Text className="text-sm font-bold uppercase text-primary-100">
-								{status.xpEarned} XP
+								{profile?.totalXp || 0} XP
 							</Text>
 						</View>
 					</View>
@@ -94,20 +220,24 @@ const Profile = () => {
 								<Crown size={24} color={"#FDE047"} />
 
 								<Text className="text-lg font-bold text-white">
-									{status.vipStatus ? "VIP Member" : "Go VIP"}
+									{isPro ? "MockMate! Pro" : "Go Pro"}
 								</Text>
 							</View>
 
 							<Text className="text-sm font-bold text-white">
-								{status.vipStatus
-									? `Next billing date: ${status.vipExpiryDate()?.toDateString()}`
+								{isPro
+									? `Next billing date: ${proExpiryDate ? new Date(proExpiryDate).toDateString() : "N/A"}`
 									: "Unlock unlimited AI interviews."}
 							</Text>
 						</View>
 
-						<TouchableOpacity className="items-center justify-center px-4 py-2 bg-white rounded-full">
+						<TouchableOpacity
+							onPress={handleMembershipPress}
+							disabled={isPurchaseInProgress}
+							className="items-center justify-center px-4 py-2 bg-white rounded-full"
+						>
 							<Text className="text-primary-100 text-sm font-bold">
-								{status.vipStatus ? "Manage" : "Upgrade"}
+								{isPro ? "Manage" : "Upgrade"}
 							</Text>
 						</TouchableOpacity>
 					</View>
@@ -118,6 +248,40 @@ const Profile = () => {
 						<SettingList section={profileSettingsListData.support} />
 					</View>
 				</ScrollView>
+
+				<Modal visible={isNameModalVisible} transparent animationType="fade">
+					<View className="flex-1 bg-black/50 justify-center items-center px-4">
+						<View className="bg-white p-6 rounded-3xl w-full">
+							<Text className="text-lg font-bold mb-4">Edit Display Name</Text>
+							<TextInput
+								className="border border-slate-200 rounded-xl p-4 mb-6 text-base"
+								value={newName}
+								onChangeText={setNewName}
+								placeholder="Enter new name"
+								autoFocus
+							/>
+							<View className="flex flex-row justify-end gap-4">
+								<TouchableOpacity
+									onPress={() => setNameModalVisible(false)}
+									className="px-4 py-2"
+								>
+									<Text className="text-slate-500 font-semibold">Cancel</Text>
+								</TouchableOpacity>
+								<TouchableOpacity
+									onPress={handleSaveName}
+									className="bg-primary-100 px-6 py-2 rounded-full flex-row items-center"
+									disabled={isSyncing}
+								>
+									{isSyncing ? (
+										<ActivityIndicator color="white" size="small" />
+									) : (
+										<Text className="text-white font-bold">Save</Text>
+									)}
+								</TouchableOpacity>
+							</View>
+						</View>
+					</View>
+				</Modal>
 			</View>
 		</UniSafeAreaView>
 	);

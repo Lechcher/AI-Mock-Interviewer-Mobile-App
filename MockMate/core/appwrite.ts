@@ -12,10 +12,13 @@ import {
 	Account,
 	Avatars,
 	Client,
+	ID,
 	OAuthProvider,
+	Storage,
 	TablesDB,
 } from "react-native-appwrite";
 import {
+	EXPO_PUBLIC_APPWRITE_BUCKET_ID,
 	EXPO_PUBLIC_APPWRITE_ENDPOINT,
 	EXPO_PUBLIC_APPWRITE_PROJECT_ID,
 	EXPO_PUBLIC_BACKEND_URL,
@@ -30,6 +33,7 @@ import { openAuthSessionAsync } from "expo-web-browser";
 export const config = {
 	endpoint: EXPO_PUBLIC_APPWRITE_ENDPOINT!,
 	projectId: EXPO_PUBLIC_APPWRITE_PROJECT_ID!,
+	bucketId: EXPO_PUBLIC_APPWRITE_BUCKET_ID!,
 };
 
 /**
@@ -57,6 +61,8 @@ export const account = new Account(client);
  * Used for interacting with the Appwrite database.
  */
 export const tablesDB = new TablesDB(client);
+
+export const storage = new Storage(client);
 
 /**
  * Handles Google OAuth login.
@@ -146,28 +152,30 @@ export const getCurrentUser = async () => {
 	}
 };
 
-export const syncProfileToBackend = async (user: {
+type SyncPayload = {
 	name: string;
 	avatar: string;
-}) => {
+};
+
+export const syncProfileToBackend = async (
+	url: string,
+	{ arg }: { arg: SyncPayload },
+) => {
 	try {
 		const jwtResponse = await account.createJWT();
 		const jwt = jwtResponse.jwt;
 
-		const response = await fetch(
-			`${EXPO_PUBLIC_BACKEND_URL}/api/v1/users/profile`,
-			{
-				method: "PUT",
-				headers: {
-					Authorization: `Bearer ${jwt}`,
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({
-					name: user.name,
-					avatar: user.avatar,
-				}),
+		const response = await fetch(`${EXPO_PUBLIC_BACKEND_URL}${url}`, {
+			method: "PUT",
+			headers: {
+				Authorization: `Bearer ${jwt}`,
+				"Content-Type": "application/json",
 			},
-		);
+			body: JSON.stringify({
+				name: arg.name,
+				avatarUrl: arg.avatar,
+			}),
+		});
 
 		const data = await response.json();
 
@@ -176,13 +184,40 @@ export const syncProfileToBackend = async (user: {
 		}
 
 		console.log(
-			"✅ Sync data to Backend successfully:",
+			"Sync data to Backend successfully:",
 			JSON.stringify(data.data, null, 2),
 		);
 
-		return true;
+		return data.data;
 	} catch (error) {
-		console.error("❌ Backend synchronization error:", error);
+		console.error("Backend synchronization error:", error);
 		return false;
+	}
+};
+
+export const uploadAvatarToAppwrite = async (fileUri: string) => {
+	try {
+		const file = {
+			uri: fileUri,
+			name: `avatar_${Date.now()}.jpg`,
+			type: "image/jpeg", // Adjust the MIME type as needed
+			size: 0,
+		};
+
+		const uploadedFile = await storage.createFile({
+			bucketId: config.bucketId,
+			fileId: ID.unique(),
+			file: file,
+		});
+
+		const fileUrl = storage.getFileView({
+			bucketId: config.bucketId,
+			fileId: uploadedFile.$id,
+		});
+
+		return fileUrl.toString();
+	} catch (error) {
+		console.error("Avatar upload error:", error);
+		return null;
 	}
 };

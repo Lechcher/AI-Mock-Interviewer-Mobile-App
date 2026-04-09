@@ -26,10 +26,14 @@ const baseInsertUserSchema = createInsertSchema(users);
 
 // Schema for creating a new user with custom validations
 export const insertUserSchema = baseInsertUserSchema.extend({
-	email: z.string().email("Invalid email address"),
+	email: z.string().email(),
 	avatarUrl: z.string().url().optional().nullable(),
 	name: z.string().min(1, "Name is required"),
 	gems: z.number().int().min(0, "Gems cannot be negative"),
+	interviewsLearnedCount: z
+		.number()
+		.int()
+		.min(0, "Interviews learned count cannot be negative"),
 	totalXp: z.number().int().min(0, "Total XP cannot be negative"),
 	currentStreak: z.number().int().min(0, "Current streak cannot be negative"),
 	streakFreeze: z.number().int().min(0, "Streak freeze cannot be negative"),
@@ -41,6 +45,10 @@ export const updateUserSchema = createUpdateSchema(users).extend({
 	avatarUrl: z.string().url().optional().nullable(),
 	name: z.string().min(1, "Name is required").optional(),
 	gems: z.number().int().min(0, "Gems cannot be negative").optional(),
+	interviewsLearnedCount: z
+		.number()
+		.int()
+		.min(0, "Interviews learned count cannot be negative"),
 	totalXp: z.number().int().min(0, "Total XP cannot be negative").optional(),
 	currentStreak: z
 		.number()

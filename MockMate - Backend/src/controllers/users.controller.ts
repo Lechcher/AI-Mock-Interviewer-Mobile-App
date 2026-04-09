@@ -1,9 +1,9 @@
-import type { Context } from "hono";
-import { users } from "../db/schema.js";
 import { eq } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
-import type * as schema from "../db/schema.js";
+import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
+import type * as schema from "../db/schema.js";
+import { users } from "../db/schema.js";
 
 type UserVariables = {
 	Variables: {
@@ -46,8 +46,7 @@ export const updateProfile = async (c: Context<UserVariables>) => {
 		});
 	}
 
-	// Note: Validation is handled by zValidator in the route
-	// If we reach here, the data is already validated
+	// Validation is handled by zValidator in the route.
 	const body = (await c.req.json()) as {
 		name?: string;
 		avatarUrl?: string;
@@ -89,6 +88,7 @@ export const getVipStatus = (c: Context<UserVariables>) => {
 		success: true,
 		data: {
 			isVip: authUser.isVip,
+			vipPlan: authUser.vipPlan || "none",
 			vipExpiry: authUser.vipNextBillingDate,
 		},
 	});

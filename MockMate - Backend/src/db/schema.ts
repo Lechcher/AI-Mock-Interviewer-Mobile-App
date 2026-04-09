@@ -54,6 +54,9 @@ export const users = pgTable(
 		currentStreak: integer("current_streak").notNull().default(0),
 		streakFreeze: integer("streak_freeze").notNull().default(0),
 		lastLearnDate: date("last_learn_date"),
+		interviewsLearnedCount: integer("interviews_learned_count")
+			.notNull()
+			.default(0),
 		doubleXpExpiresAt: timestamp("double_xp_expires_at"),
 		isVip: boolean("is_vip").notNull().default(false),
 		vipPlan: varchar("vip_plan"),
@@ -67,6 +70,10 @@ export const users = pgTable(
 		check("users_total_xp_check", sql`${table.totalXp} >= 0`),
 		check("users_current_streak_check", sql`${table.currentStreak} >= 0`),
 		check("users_streak_freeze_check", sql`${table.streakFreeze} >= 0`),
+		check(
+			"users_interviews_learned_count_check",
+			sql`${table.interviewsLearnedCount} >= 0`,
+		),
 	],
 );
 
