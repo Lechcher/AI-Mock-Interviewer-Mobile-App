@@ -1,13 +1,13 @@
 import { Hono } from "hono";
-import { getEnv } from "./core/env.js";
-import { logger } from "hono/logger";
 import { cors } from "hono/cors";
+import { getEnv } from "./core/env.js";
 import { interviewsRoutes } from "./routes/interviews.route.js";
-import { usersRoutes } from "./routes/users.route.js";
-import { sessionsRoutes } from "./routes/sessions.route.js";
+import { logger } from "hono/logger";
 import { questsRoutes } from "./routes/quests.route.js";
+import { sessionsRoutes } from "./routes/sessions.route.js";
 import { shopRoutes } from "./routes/shop.route.js";
-import { webhooksRouters } from "./routes/webhooks.route.js";
+import { usersRoutes } from "./routes/users.route.js";
+import { webhooksRoutes } from "./routes/webhooks.route.js";
 
 const app = new Hono();
 
@@ -28,7 +28,7 @@ app.route("/api/v1/users", usersRoutes);
 app.route("/api/v1/sessions", sessionsRoutes);
 app.route("/api/v1/quests", questsRoutes);
 app.route("/api/v1/shop", shopRoutes);
-app.route("/api/v1/webhooks", webhooksRouters);
+app.route("/api/v1/webhooks", webhooksRoutes);
 
 export default {
 	port: process.env?.PORT || 3000,

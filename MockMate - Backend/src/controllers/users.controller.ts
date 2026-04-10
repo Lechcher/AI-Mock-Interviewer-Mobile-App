@@ -12,45 +12,50 @@ type UserVariables = {
 	};
 };
 
-export const getProfile = (c: Context<UserVariables>) => {
+const requireAuthUser = (c: Context<UserVariables>) => {
 	const authUser = c.get("user");
-
 	if (!authUser) {
 		throw new HTTPException(401, {
 			message: "Unauthorized: User not found",
 		});
 	}
+	return authUser;
+};
+
+const toUserProfileDto = (user: typeof schema.users.$inferSelect) => ({
+	id: user.id,
+	name: user.name,
+	email: user.email,
+	avatarUrl: user.avatarUrl,
+	gems: user.gems,
+	totalXp: user.totalXp,
+	currentStreak: user.currentStreak,
+	streakFreeze: user.streakFreeze,
+});
+
+const toVipDto = (user: typeof schema.users.$inferSelect) => ({
+	isVip: user.isVip,
+	vipPlan: user.vipPlan || "none",
+	vipExpiry: user.vipNextBillingDate,
+});
+
+export const getProfile = (c: Context<UserVariables>) => {
+	const authUser = requireAuthUser(c);
 
 	return c.json({
 		success: true,
-		data: {
-			id: authUser.id,
-			name: authUser.name,
-			email: authUser.email,
-			avatarUrl: authUser.avatarUrl,
-			gems: authUser.gems,
-			totalXp: authUser.totalXp,
-			currentStreak: authUser.currentStreak,
-			streakFreeze: authUser.streakFreeze,
-		},
+		data: toUserProfileDto(authUser),
 	});
 };
 
 export const updateProfile = async (c: Context<UserVariables>) => {
-	const authUser = c.get("user");
+	const authUser = requireAuthUser(c);
 	const db = c.get("db");
 
-	if (!authUser) {
-		throw new HTTPException(401, {
-			message: "Unauthorized: User not found",
-		});
-	}
-
-	// Validation is handled by zValidator in the route.
-	const body = (await c.req.json()) as {
+	const body = await c.req.json<{
 		name?: string;
 		avatarUrl?: string;
-	};
+	}>();
 
 	const updatedUser = await db
 		.update(users)
@@ -63,33 +68,23 @@ export const updateProfile = async (c: Context<UserVariables>) => {
 		.returning();
 
 	if (!updatedUser || updatedUser.length === 0) {
-		throw new HTTPException(500, {
-			message: "Failed to update user information. Please try again later.",
+		throw new HTTPException(404, {
+			message: "User not found",
 		});
 	}
 
 	return c.json({
 		success: true,
 		message: "Profile updated successfully",
-		data: updatedUser[0],
+		data: toUserProfileDto(updatedUser[0]),
 	});
 };
 
 export const getVipStatus = (c: Context<UserVariables>) => {
-	const authUser = c.get("user");
-
-	if (!authUser) {
-		throw new HTTPException(401, {
-			message: "Unauthorized: User not found",
-		});
-	}
+	const authUser = requireAuthUser(c);
 
 	return c.json({
 		success: true,
-		data: {
-			isVip: authUser.isVip,
-			vipPlan: authUser.vipPlan || "none",
-			vipExpiry: authUser.vipNextBillingDate,
-		},
+		data: toVipDto(authUser),
 	});
 };

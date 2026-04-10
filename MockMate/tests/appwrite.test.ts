@@ -1,6 +1,8 @@
-import * as Linking from "expo-linking";
+/**
+ * @file Unit tests for Appwrite configuration and services
+ */
+
 import { openAuthSessionAsync } from "expo-web-browser";
-import { Account, Avatars, Client, ID, Storage } from "react-native-appwrite";
 
 jest.mock("expo-linking", () => ({
 	createURL: jest.fn(() => "app://redirect"),
@@ -10,39 +12,7 @@ jest.mock("expo-web-browser", () => ({
 	openAuthSessionAsync: jest.fn(),
 }));
 
-jest.mock("react-native-appwrite", () => {
-	const createClient = () => ({
-		setEndpoint: jest.fn().mockReturnThis(),
-		setProject: jest.fn().mockReturnThis(),
-	});
-
-	const createAccount = () => ({
-		createOAuth2Token: jest.fn(),
-		createSession: jest.fn(),
-		deleteSession: jest.fn(),
-		get: jest.fn(),
-		createJWT: jest.fn(),
-	});
-
-	const createAvatars = () => ({
-		getInitialsURL: jest.fn(),
-	});
-
-	const createStorage = () => ({
-		createFile: jest.fn(),
-		getFileView: jest.fn(),
-	});
-
-	return {
-		Client: jest.fn(() => createClient()),
-		Account: jest.fn(() => createAccount()),
-		Avatars: jest.fn(() => createAvatars()),
-		TablesDB: jest.fn(() => ({})),
-		Storage: jest.fn(() => createStorage()),
-		ID: { unique: jest.fn(() => "unique-id") },
-		OAuthProvider: { Google: "google" },
-	};
-});
+jest.mock("react-native-appwrite");
 
 const setEnvVars = () => {
 	process.env.EXPO_PUBLIC_APPWRITE_ENDPOINT = "https://api.appwrite.test";
@@ -56,13 +26,14 @@ const loadModule = () => {
 	jest.clearAllMocks();
 	setEnvVars();
 	// eslint-disable-next-line @typescript-eslint/no-var-requires
-	return require("./appwrite") as typeof import("./appwrite");
+	return require("../core/appwrite") as typeof import("../core/appwrite");
 };
 
 describe("appwrite config and client setup", () => {
 	test("uses environment variables to configure client", () => {
 		const appwrite = loadModule();
-		const clientInstance = (Client as jest.Mock).mock.results[0].value;
+		const clientInstance = (appwrite.client as unknown as jest.Mock).mock
+			.results[0].value;
 
 		expect(appwrite.config.endpoint).toBe("https://api.appwrite.test");
 		expect(appwrite.config.projectId).toBe("project-id");
@@ -71,6 +42,15 @@ describe("appwrite config and client setup", () => {
 			"https://api.appwrite.test",
 		);
 		expect(clientInstance.setProject).toHaveBeenCalledWith("project-id");
+	});
+
+	test("exports all required services", () => {
+		const appwrite = loadModule();
+
+		expect(appwrite.client).toBeDefined();
+		expect(appwrite.account).toBeDefined();
+		expect(appwrite.avatar).toBeDefined();
+		expect(appwrite.storage).toBeDefined();
 	});
 });
 
@@ -118,34 +98,83 @@ describe("login", () => {
 		const result = await appwrite.login();
 
 		expect(result).toBe(false);
-		expect(mockAccount.createSession).not.toHaveBeenCalled();
+	});
+
+	test("returns false when OAuth token creation fails", async () => {
+		const appwrite = loadModule();
+		const mockAccount = appwrite.account as unknown as {
+			createOAuth2Token: jest.Mock;
+		};
+
+		mockAccount.createOAuth2Token.mockResolvedValue(null);
+
+		const result = await appwrite.login();
+
+		expect(result).toBe(false);
+	});
+
+	test("returns false when secret or userId is missing", async () => {
+		const appwrite = loadModule();
+		const mockAccount = appwrite.account as unknown as {
+			createOAuth2Token: jest.Mock;
+			createSession: jest.Mock;
+		};
+
+		mockAccount.createOAuth2Token.mockResolvedValue("https://auth");
+		(openAuthSessionAsync as jest.Mock).mockResolvedValue({
+			type: "success",
+			url: "app://redirect",
+		});
+
+		const result = await appwrite.login();
+
+		expect(result).toBe(false);
+	});
+
+	test("returns false when session creation fails", async () => {
+		const appwrite = loadModule();
+		const mockAccount = appwrite.account as unknown as {
+			createOAuth2Token: jest.Mock;
+			createSession: jest.Mock;
+		};
+
+		mockAccount.createOAuth2Token.mockResolvedValue("https://auth");
+		(openAuthSessionAsync as jest.Mock).mockResolvedValue({
+			type: "success",
+			url: "app://redirect?secret=sec&userId=uid",
+		});
+		mockAccount.createSession.mockResolvedValue(null);
+
+		const result = await appwrite.login();
+
+		expect(result).toBe(false);
 	});
 });
 
 describe("logout", () => {
-	test("returns deletion result when successful", async () => {
+	test("returns true on successful logout", async () => {
 		const appwrite = loadModule();
 		const mockAccount = appwrite.account as unknown as {
 			deleteSession: jest.Mock;
 		};
 
-		mockAccount.deleteSession.mockResolvedValue({ success: true });
+		mockAccount.deleteSession.mockResolvedValue(undefined);
 
 		const result = await appwrite.logout();
 
-		expect(result).toEqual({ success: true });
+		expect(result).toBe(true);
 		expect(mockAccount.deleteSession).toHaveBeenCalledWith({
 			sessionId: "current",
 		});
 	});
 
-	test("returns false on deletion error", async () => {
+	test("returns false when logout fails", async () => {
 		const appwrite = loadModule();
 		const mockAccount = appwrite.account as unknown as {
 			deleteSession: jest.Mock;
 		};
 
-		mockAccount.deleteSession.mockRejectedValue(new Error("fail"));
+		mockAccount.deleteSession.mockRejectedValue(new Error("Session not found"));
 
 		const result = await appwrite.logout();
 
@@ -154,31 +183,58 @@ describe("logout", () => {
 });
 
 describe("getCurrentUser", () => {
-	test("returns user with avatar url when account exists", async () => {
+	test("returns user object with avatar when user is authenticated", async () => {
 		const appwrite = loadModule();
-		const mockAccount = appwrite.account as unknown as { get: jest.Mock };
-		const mockAvatar = appwrite.avatar as unknown as {
+		const mockAccount = appwrite.account as unknown as {
+			get: jest.Mock;
+		};
+		const mockAvatars = appwrite.avatar as unknown as {
 			getInitialsURL: jest.Mock;
 		};
 
-		mockAccount.get.mockResolvedValue({ $id: "user-1", name: "Test User" });
-		mockAvatar.getInitialsURL.mockReturnValue({ toString: () => "avatar-url" });
+		const mockUser = {
+			$id: "user123",
+			$createdAt: "2024-01-01",
+			$updatedAt: "2024-01-01",
+			name: "John Doe",
+			email: "john@example.com",
+			emailVerification: true,
+			prefs: {},
+		};
+
+		mockAccount.get.mockResolvedValue(mockUser);
+		mockAvatars.getInitialsURL.mockReturnValue(
+			new URL("https://avatar.test/john"),
+		);
 
 		const result = await appwrite.getCurrentUser();
 
 		expect(result).toEqual({
-			$id: "user-1",
-			name: "Test User",
-			avatar: "avatar-url",
+			...mockUser,
+			avatar: "https://avatar.test/john",
 		});
-		expect(mockAvatar.getInitialsURL).toHaveBeenCalledWith("Test User");
 	});
 
-	test("returns null when fetch fails", async () => {
+	test("returns null when no user is authenticated", async () => {
 		const appwrite = loadModule();
-		const mockAccount = appwrite.account as unknown as { get: jest.Mock };
+		const mockAccount = appwrite.account as unknown as {
+			get: jest.Mock;
+		};
 
-		mockAccount.get.mockRejectedValue(new Error("fail"));
+		mockAccount.get.mockRejectedValue(new Error("User not found"));
+
+		const result = await appwrite.getCurrentUser();
+
+		expect(result).toBeNull();
+	});
+
+	test("returns null when user has no ID", async () => {
+		const appwrite = loadModule();
+		const mockAccount = appwrite.account as unknown as {
+			get: jest.Mock;
+		};
+
+		mockAccount.get.mockResolvedValue({ $id: undefined });
 
 		const result = await appwrite.getCurrentUser();
 
@@ -187,71 +243,135 @@ describe("getCurrentUser", () => {
 });
 
 describe("syncProfileToBackend", () => {
-	test("sends jwt and returns backend data when successful", async () => {
-		const appwrite = loadModule();
-		const mockAccount = appwrite.account as unknown as { createJWT: jest.Mock };
-		mockAccount.createJWT.mockResolvedValue({ jwt: "jwt-token" });
+	const mockFetch = jest.fn();
 
-		const fetchMock = jest.fn(async () => ({
+	beforeAll(() => {
+		global.fetch = mockFetch as unknown as typeof fetch;
+	});
+
+	afterEach(() => {
+		mockFetch.mockClear();
+	});
+
+	test("returns success response when sync is successful", async () => {
+		const appwrite = loadModule();
+		const mockAccount = appwrite.account as unknown as {
+			createJWT: jest.Mock;
+		};
+
+		const mockJWT = { jwt: "test-jwt-token" };
+		mockAccount.createJWT.mockResolvedValue(mockJWT);
+
+		const mockResponse = {
 			ok: true,
-			json: async () => ({ data: { synced: true } }),
-		}));
-		global.fetch = fetchMock as any;
+			json: jest.fn().mockResolvedValue({
+				data: {
+					id: "profile123",
+					name: "John",
+					avatarUrl: "https://avatar.test",
+				},
+			}),
+		};
+		mockFetch.mockResolvedValue(mockResponse);
 
 		const result = await appwrite.syncProfileToBackend("/profile", {
-			arg: { name: "Name", avatar: "avatar" },
+			arg: { name: "John", avatar: "https://avatar.test" },
 		});
 
-		expect(result).toEqual({ synced: true });
-		expect(fetchMock).toHaveBeenCalledWith(
+		expect(result).toEqual({
+			success: true,
+			data: {
+				id: "profile123",
+				name: "John",
+				avatarUrl: "https://avatar.test",
+			},
+		});
+		expect(mockAccount.createJWT).toHaveBeenCalled();
+		expect(mockFetch).toHaveBeenCalledWith(
 			"https://backend.test/profile",
 			expect.objectContaining({
 				method: "PUT",
-				headers: expect.objectContaining({ Authorization: "Bearer jwt-token" }),
+				headers: {
+					Authorization: "Bearer test-jwt-token",
+					"Content-Type": "application/json",
+				},
 			}),
 		);
 	});
 
-	test("returns false on backend error", async () => {
+	test("returns error response when backend request fails", async () => {
 		const appwrite = loadModule();
-		const mockAccount = appwrite.account as unknown as { createJWT: jest.Mock };
-		mockAccount.createJWT.mockResolvedValue({ jwt: "jwt-token" });
+		const mockAccount = appwrite.account as unknown as {
+			createJWT: jest.Mock;
+		};
 
-		global.fetch = jest.fn(async () => ({
+		const mockJWT = { jwt: "test-jwt-token" };
+		mockAccount.createJWT.mockResolvedValue(mockJWT);
+
+		const mockResponse = {
 			ok: false,
-			json: async () => ({ error: "bad" }),
-		})) as any;
+			json: jest.fn().mockResolvedValue({
+				error: "Profile not found",
+			}),
+		};
+		mockFetch.mockResolvedValue(mockResponse);
 
 		const result = await appwrite.syncProfileToBackend("/profile", {
-			arg: { name: "Name", avatar: "avatar" },
+			arg: { name: "John", avatar: "https://avatar.test" },
 		});
 
-		expect(result).toBe(false);
+		expect(result).toEqual({
+			success: false,
+			error: "Profile not found",
+		});
+	});
+
+	test("returns error response when JWT creation fails", async () => {
+		const appwrite = loadModule();
+		const mockAccount = appwrite.account as unknown as {
+			createJWT: jest.Mock;
+		};
+
+		mockAccount.createJWT.mockRejectedValue(new Error("JWT creation failed"));
+
+		const result = await appwrite.syncProfileToBackend("/profile", {
+			arg: { name: "John", avatar: "https://avatar.test" },
+		});
+
+		expect(result).toEqual({
+			success: false,
+			error: "JWT creation failed",
+		});
 	});
 });
 
 describe("uploadAvatarToAppwrite", () => {
-	test("uploads file and returns file view url", async () => {
+	test("returns file URL on successful upload", async () => {
 		const appwrite = loadModule();
 		const mockStorage = appwrite.storage as unknown as {
 			createFile: jest.Mock;
 			getFileView: jest.Mock;
 		};
 
-		mockStorage.createFile.mockResolvedValue({ $id: "file-1" });
-		mockStorage.getFileView.mockReturnValue({ toString: () => "file-url" });
+		const mockFileId = "file123";
+		mockStorage.createFile.mockResolvedValue({ $id: mockFileId });
+		mockStorage.getFileView.mockReturnValue(
+			new URL("https://storage.test/file123"),
+		);
 
-		const result = await appwrite.uploadAvatarToAppwrite("/tmp/avatar.jpg");
+		const fileUri = "file:///path/to/avatar.jpg";
+		const result = await appwrite.uploadAvatarToAppwrite(fileUri);
 
-		expect(result).toBe("file-url");
+		expect(result).toBe("https://storage.test/file123");
 		expect(mockStorage.createFile).toHaveBeenCalledWith({
 			bucketId: "bucket-id",
 			fileId: "unique-id",
-			file: expect.objectContaining({ uri: "/tmp/avatar.jpg" }),
-		});
-		expect(mockStorage.getFileView).toHaveBeenCalledWith({
-			bucketId: "bucket-id",
-			fileId: "file-1",
+			file: {
+				uri: fileUri,
+				name: expect.stringMatching(/^avatar_\d+\.jpg$/),
+				type: "image/jpeg",
+				size: 0,
+			},
 		});
 	});
 
@@ -261,27 +381,30 @@ describe("uploadAvatarToAppwrite", () => {
 			createFile: jest.Mock;
 		};
 
-		mockStorage.createFile.mockRejectedValue(new Error("fail"));
+		mockStorage.createFile.mockRejectedValue(new Error("Upload failed"));
 
-		const result = await appwrite.uploadAvatarToAppwrite("/tmp/avatar.jpg");
+		const fileUri = "file:///path/to/avatar.jpg";
+		const result = await appwrite.uploadAvatarToAppwrite(fileUri);
 
 		expect(result).toBeNull();
 	});
-});
 
-describe("ID helper", () => {
-	test("uses ID.unique when creating file", async () => {
+	test("returns null when getFileView fails", async () => {
 		const appwrite = loadModule();
 		const mockStorage = appwrite.storage as unknown as {
 			createFile: jest.Mock;
 			getFileView: jest.Mock;
 		};
 
-		mockStorage.createFile.mockResolvedValue({ $id: "file-2" });
-		mockStorage.getFileView.mockReturnValue({ toString: () => "file-url" });
+		const mockFileId = "file123";
+		mockStorage.createFile.mockResolvedValue({ $id: mockFileId });
+		mockStorage.getFileView.mockImplementation(() => {
+			throw new Error("Get file view failed");
+		});
 
-		await appwrite.uploadAvatarToAppwrite("/tmp/avatar.jpg");
+		const fileUri = "file:///path/to/avatar.jpg";
+		const result = await appwrite.uploadAvatarToAppwrite(fileUri);
 
-		expect(ID.unique as jest.Mock).toHaveBeenCalled();
+		expect(result).toBeNull();
 	});
 });

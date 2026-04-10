@@ -12,6 +12,7 @@ export const envShema = z.object({
 	REVENUECAT_API_KEY: z.string().min(1),
 	APPWRITE_ENDPOINT: z.string().regex(URL_REGEX),
 	APPWRITE_PROJECT_ID: z.string().min(1),
+	REVENUECAT_WEBHOOK_SECRET: z.string().min(1),
 	PORT: z.coerce.number().default(3000),
 });
 
