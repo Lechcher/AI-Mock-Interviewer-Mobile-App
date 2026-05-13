@@ -1,42 +1,44 @@
-import { relations, sql } from "drizzle-orm";
 import {
-	pgTable,
-	uuid,
-	varchar,
-	integer,
-	timestamp,
 	boolean,
+	check,
 	date,
 	doublePrecision,
-	uniqueIndex,
 	index,
+	integer,
+	pgEnum,
+	pgTable,
 	primaryKey,
-	check,
+	timestamp,
+	uniqueIndex,
+	uuid,
+	varchar,
 } from "drizzle-orm/pg-core";
+import { relations, sql } from "drizzle-orm";
 
 // ==========================================
 // ENUMS
 // ==========================================
-export const interviewDifficultyEnum = ["easy", "medium", "hard"] as const;
-export type InterviewDifficulty = (typeof interviewDifficultyEnum)[number];
 
-export const sessionModeEnum = ["text", "voice"] as const;
-export type SessionMode = (typeof sessionModeEnum)[number];
-
-export const sessionStatusEnum = [
+export const interviewDifficultyEnum = pgEnum("interview_difficulty", [
+	"easy",
+	"medium",
+	"hard",
+]);
+export const sessionModeEnum = pgEnum("session_mode", ["text", "voice"]);
+export const sessionStatusEnum = pgEnum("session_status", [
 	"in_progress",
 	"completed",
 	"stopped",
-] as const;
-export type SessionStatus = (typeof sessionStatusEnum)[number];
-
-export const questTypeEnum = [
+]);
+export const questTypeEnum = pgEnum("quest_type", [
 	"complete_interview",
 	"learn_minutes",
 	"earn_exp",
 	"earn_gems",
-] as const;
-export type QuestType = (typeof questTypeEnum)[number];
+]);
+
+export type SessionStatus = (typeof sessionStatusEnum.enumValues)[number];
+export type QuestType = (typeof questTypeEnum.enumValues)[number];
 
 // ==========================================
 // 1. USERS TABLE
@@ -57,12 +59,21 @@ export const users = pgTable(
 		interviewsLearnedCount: integer("interviews_learned_count")
 			.notNull()
 			.default(0),
-		doubleXpExpiresAt: timestamp("double_xp_expires_at"),
+		doubleXpExpiresAt: timestamp("double_xp_expires_at", {
+			withTimezone: true,
+		}),
 		isVip: boolean("is_vip").notNull().default(false),
-		vipPlan: varchar("vip_plan"),
-		vipNextBillingDate: timestamp("vip_next_billing_date"),
-		createdAt: timestamp("created_at").notNull().defaultNow(),
-		updatedAt: timestamp("updated_at").notNull().defaultNow(),
+		vipPlan: varchar("vip_plan", { length: 50 }),
+		vipNextBillingDate: timestamp("vip_next_billing_date", {
+			withTimezone: true,
+		}),
+		createdAt: timestamp("created_at", { withTimezone: true })
+			.notNull()
+			.defaultNow(),
+		updatedAt: timestamp("updated_at", { withTimezone: true })
+			.notNull()
+			.defaultNow()
+			.$onUpdate(() => new Date()),
 	},
 	(table) => [
 		// Ensure gems, totalXp, currentStreak, streakFreeze are non-negative
@@ -94,7 +105,7 @@ export const interviews = pgTable(
 		id: uuid("id").primaryKey().defaultRandom(),
 		title: varchar("title", { length: 255 }).notNull(),
 		industry: varchar("industry", { length: 255 }).notNull(),
-		difficulty: varchar("difficulty", { length: 50 }).notNull(),
+		difficulty: interviewDifficultyEnum("difficulty").notNull(),
 		questionCount: integer("question_count").notNull(),
 		focusArea: varchar("focus_area", { length: 255 }).notNull(),
 		createdBy: uuid("created_by")
@@ -102,8 +113,13 @@ export const interviews = pgTable(
 			.references(() => users.id),
 		avgRating: doublePrecision("avg_rating").notNull().default(0),
 		totalReviews: integer("total_reviews").notNull().default(0),
-		createdAt: timestamp("created_at").notNull().defaultNow(),
-		updatedAt: timestamp("updated_at"),
+		createdAt: timestamp("created_at", { withTimezone: true })
+			.notNull()
+			.defaultNow(),
+		updatedAt: timestamp("updated_at", { withTimezone: true })
+			.notNull()
+			.defaultNow()
+			.$onUpdate(() => new Date()),
 	},
 	(table) => [
 		// Index for faster lookups by creator
@@ -218,8 +234,8 @@ export const interviewSessions = pgTable(
 		userId: uuid("user_id")
 			.references(() => users.id, { onDelete: "cascade" })
 			.notNull(),
-		mode: varchar("mode", { length: 20 }).notNull(),
-		status: varchar("status", { length: 20 }).notNull().default("in_progress"),
+		mode: sessionModeEnum("mode").notNull(),
+		status: sessionStatusEnum("status").notNull().default("in_progress"),
 		xpEarned: integer("xp_earned").notNull().default(0),
 		startedAt: timestamp("started_at").notNull().defaultNow(),
 		endedAt: timestamp("ended_at"),
@@ -256,7 +272,7 @@ export const dailyQuests = pgTable(
 	"daily_quests",
 	{
 		id: uuid("id").primaryKey().defaultRandom(),
-		questType: varchar("quest_type", { length: 50 }).notNull(),
+		questType: questTypeEnum("quest_type").notNull(),
 		title: varchar("title").notNull(),
 		requirements: integer("requirements").notNull(),
 		rewardGems: integer("reward_gems").notNull(),

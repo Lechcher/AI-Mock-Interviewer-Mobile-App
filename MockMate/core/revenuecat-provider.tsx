@@ -1,19 +1,7 @@
 import {
-	createContext,
-	type ReactNode,
-	useCallback,
-	useContext,
-	useEffect,
-	useMemo,
-	useRef,
-	useState,
-} from "react";
-import type {
-	CustomerInfo,
-	PurchasesOffering,
-	PurchasesPackage,
-} from "react-native-purchases";
-import type { PAYWALL_RESULT } from "react-native-purchases-ui";
+	syncVipStatusToBackend,
+	type VipStatusSyncPayload,
+} from "@/core/appwrite";
 import { useGlobalContext } from "@/core/global-provider";
 import {
 	addCustomerInfoListener,
@@ -33,6 +21,22 @@ import {
 	purchaseSelectedPackage,
 	restoreRevenueCatPurchases,
 } from "@/core/revenuecat";
+import {
+	createContext,
+	type ReactNode,
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from "react";
+import type {
+	CustomerInfo,
+	PurchasesOffering,
+	PurchasesPackage,
+} from "react-native-purchases";
+import type { PAYWALL_RESULT } from "react-native-purchases-ui";
 
 type SubscriptionPlan = "yearly" | "monthly";
 
@@ -40,9 +44,9 @@ type RevenueCatContextValue = {
 	isReady: boolean;
 	isLoading: boolean;
 	isPurchaseInProgress: boolean;
-	isPro: boolean;
-	proEntitlementIdentifier: string | null;
-	proExpiryDate: string | null;
+	isVip: boolean;
+	vipEntitlementIdentifier: string | null;
+	vipExpiryDate: string | null;
 	customerInfo: CustomerInfo | null;
 	offering: PurchasesOffering | null;
 	availablePackages: PurchasesPackage[];
@@ -70,6 +74,57 @@ export const RevenueCatProvider = ({ children }: { children: ReactNode }) => {
 
 	const isConfiguredRef = useRef(false);
 	const syncedUserIdRef = useRef<string | null>(null);
+	const lastSyncedVipStatusRef = useRef<{
+		isVip: boolean;
+		expiryDate: string | null;
+		entitlementId: string | null;
+	}>({ isVip: false, expiryDate: null, entitlementId: null });
+
+	const syncVipStatusToBackendIfNeeded = useCallback(
+		async (newCustomerInfo: CustomerInfo | null) => {
+			if (!user?.$id || !newCustomerInfo) {
+				return;
+			}
+
+			const newIsVip = isProEntitlementActive(newCustomerInfo);
+			const newVipEntitlement = getProEntitlement(newCustomerInfo);
+			const newExpiryDate = newVipEntitlement?.expirationDate || null;
+			const newEntitlementId = newVipEntitlement?.identifier || null;
+
+			// Only sync if VIP status has changed
+			const hasVipStatusChanged =
+				lastSyncedVipStatusRef.current.isVip !== newIsVip ||
+				lastSyncedVipStatusRef.current.expiryDate !== newExpiryDate ||
+				lastSyncedVipStatusRef.current.entitlementId !== newEntitlementId;
+
+			if (!hasVipStatusChanged) {
+				return;
+			}
+
+			try {
+				const payload: VipStatusSyncPayload = {
+					isVip: newIsVip,
+					vipExpiryDate: newExpiryDate,
+					entitlementIdentifier: newEntitlementId,
+				};
+
+				await syncVipStatusToBackend("/api/v1/users/vip-status", {
+					arg: payload,
+				});
+
+				// Update the ref to prevent duplicate syncs
+				lastSyncedVipStatusRef.current = {
+					isVip: newIsVip,
+					expiryDate: newExpiryDate,
+					entitlementId: newEntitlementId,
+				};
+			} catch (error) {
+				console.error("Failed to sync VIP status to backend:", error);
+				// Don't throw - this is a background sync operation
+			}
+		},
+		[user?.$id],
+	);
 
 	const refreshRevenueCat = useCallback(async () => {
 		if (!isRevenueCatSupportedPlatform) {
@@ -112,10 +167,12 @@ export const RevenueCatProvider = ({ children }: { children: ReactNode }) => {
 
 		const unsubscribe = addCustomerInfoListener((updatedCustomerInfo) => {
 			setCustomerInfo(updatedCustomerInfo);
+			// Sync VIP status to backend whenever customer info changes
+			void syncVipStatusToBackendIfNeeded(updatedCustomerInfo);
 		});
 
 		return unsubscribe;
-	}, []);
+	}, [syncVipStatusToBackendIfNeeded]);
 
 	useEffect(() => {
 		if (!isRevenueCatSupportedPlatform || !isConfiguredRef.current) {
@@ -142,6 +199,9 @@ export const RevenueCatProvider = ({ children }: { children: ReactNode }) => {
 
 				if (!isCancelled) {
 					await refreshRevenueCat();
+					// Sync VIP status after initial refresh
+					const latestCustomerInfo = await getCustomerInfo();
+					await syncVipStatusToBackendIfNeeded(latestCustomerInfo);
 				}
 			} catch (error) {
 				console.error("RevenueCat user sync failed:", error);
@@ -157,7 +217,7 @@ export const RevenueCatProvider = ({ children }: { children: ReactNode }) => {
 		return () => {
 			isCancelled = true;
 		};
-	}, [user?.$id, refreshRevenueCat]);
+	}, [user?.$id, refreshRevenueCat, syncVipStatusToBackendIfNeeded]);
 
 	const purchasePlan = useCallback(
 		async (plan: SubscriptionPlan) => {
@@ -181,6 +241,8 @@ export const RevenueCatProvider = ({ children }: { children: ReactNode }) => {
 
 				if (latestCustomerInfo) {
 					setCustomerInfo(latestCustomerInfo);
+					// Sync VIP status to backend immediately after successful purchase
+					await syncVipStatusToBackendIfNeeded(latestCustomerInfo);
 				}
 
 				return latestCustomerInfo;
@@ -194,7 +256,7 @@ export const RevenueCatProvider = ({ children }: { children: ReactNode }) => {
 				setIsPurchaseInProgress(false);
 			}
 		},
-		[offering],
+		[offering, syncVipStatusToBackendIfNeeded],
 	);
 
 	const restorePurchases = useCallback(async () => {
@@ -203,11 +265,13 @@ export const RevenueCatProvider = ({ children }: { children: ReactNode }) => {
 		try {
 			const latestCustomerInfo = await restoreRevenueCatPurchases();
 			setCustomerInfo(latestCustomerInfo);
+			// Sync VIP status to backend immediately after successful restore
+			await syncVipStatusToBackendIfNeeded(latestCustomerInfo);
 			return latestCustomerInfo;
 		} finally {
 			setIsPurchaseInProgress(false);
 		}
-	}, []);
+	}, [syncVipStatusToBackendIfNeeded]);
 
 	const presentPaywall = useCallback(async () => {
 		setIsPurchaseInProgress(true);
@@ -217,13 +281,16 @@ export const RevenueCatProvider = ({ children }: { children: ReactNode }) => {
 
 			if (result === "PURCHASED" || result === "RESTORED") {
 				await refreshRevenueCat();
+				// Sync VIP status to backend after paywall purchase/restore
+				const latestCustomerInfo = await getCustomerInfo();
+				await syncVipStatusToBackendIfNeeded(latestCustomerInfo);
 			}
 
 			return result;
 		} finally {
 			setIsPurchaseInProgress(false);
 		}
-	}, [offering, refreshRevenueCat]);
+	}, [offering, refreshRevenueCat, syncVipStatusToBackendIfNeeded]);
 
 	const presentCustomerCenter = useCallback(async () => {
 		await presentRevenueCatCustomerCenter();
@@ -233,15 +300,15 @@ export const RevenueCatProvider = ({ children }: { children: ReactNode }) => {
 		const availablePackages = getPreferredPackages(offering);
 		const yearlyPackage = findPackageForPlan(offering, "yearly");
 		const monthlyPackage = findPackageForPlan(offering, "monthly");
-		const proEntitlement = getProEntitlement(customerInfo);
+		const vipEntitlement = getProEntitlement(customerInfo);
 
 		return {
 			isReady,
 			isLoading,
 			isPurchaseInProgress,
-			isPro: isProEntitlementActive(customerInfo),
-			proEntitlementIdentifier: proEntitlement?.identifier || null,
-			proExpiryDate: proEntitlement?.expirationDate || null,
+			isVip: isProEntitlementActive(customerInfo),
+			vipEntitlementIdentifier: vipEntitlement?.identifier || null,
+			vipExpiryDate: vipEntitlement?.expirationDate || null,
 			customerInfo,
 			offering,
 			availablePackages,

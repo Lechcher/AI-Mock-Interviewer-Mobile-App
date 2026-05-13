@@ -1,3 +1,8 @@
+import {
+	EXPO_PUBLIC_REVENUECAT_ANDROID_API_KEY,
+	EXPO_PUBLIC_REVENUECAT_ENTITLEMENT_ID,
+	EXPO_PUBLIC_REVENUECAT_IOS_API_KEY,
+} from "@/lib/env";
 import { Platform } from "react-native";
 import Purchases, {
 	type CustomerInfo,
@@ -7,14 +12,9 @@ import Purchases, {
 	type PurchasesPackage,
 } from "react-native-purchases";
 import RevenueCatUI, { type PAYWALL_RESULT } from "react-native-purchases-ui";
-import {
-	EXPO_PUBLIC_REVENUECAT_ANDROID_API_KEY,
-	EXPO_PUBLIC_REVENUECAT_ENTITLEMENT_ID,
-	EXPO_PUBLIC_REVENUECAT_IOS_API_KEY,
-} from "@/lib/env";
 
 export const REVENUECAT_ENTITLEMENT_ID =
-	EXPO_PUBLIC_REVENUECAT_ENTITLEMENT_ID || "Just Write! Pro";
+	EXPO_PUBLIC_REVENUECAT_ENTITLEMENT_ID || "MockMate! VIP";
 
 const FALLBACK_ENTITLEMENT_IDS = Array.from(
 	new Set([REVENUECAT_ENTITLEMENT_ID, "Just Write! Pro", "MockMate! Pro"]),

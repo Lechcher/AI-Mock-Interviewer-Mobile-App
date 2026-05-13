@@ -26,6 +26,11 @@
       "sourceType": "github",
       "computedHash": "ec80656fd61e874e3ebe65957e60f6c699b30ca5cdaaa9867e0dad96306ae436"
     },
+    "postman-cli-skill": {
+      "source": "Lechcher/skills",
+      "sourceType": "github",
+      "computedHash": "c5d7317e117b41a4227c22f0c809b2fa36dcf4a188abc5097ce1a008ce16b46b"
+    },
     "spec-kit-skill": {
       "source": "Lechcher/skills",
       "sourceType": "github",

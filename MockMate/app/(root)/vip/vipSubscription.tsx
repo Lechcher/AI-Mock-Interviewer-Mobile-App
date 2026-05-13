@@ -1,7 +1,5 @@
-import { useRouter } from "expo-router";
-import { ArrowRight, Crown, Loader2, RefreshCw, X } from "lucide-react-native";
-import { useMemo, useState } from "react";
 import {
+	ActivityIndicator,
 	Alert,
 	ScrollView,
 	StatusBar,
@@ -9,8 +7,12 @@ import {
 	TouchableOpacity,
 	View,
 } from "react-native";
+import { ArrowRight, Crown, RefreshCw, X } from "lucide-react-native";
+import { useMemo, useState } from "react";
+
 import { UniSafeAreaView } from "@/core/customUniwind";
 import { useRevenueCat } from "@/hooks/useRevenueCat";
+import { useRouter } from "expo-router";
 
 type Plan = "yearly" | "monthly";
 
@@ -55,7 +57,7 @@ const VipSubscriptionPage = () => {
 			if (customerInfo) {
 				Alert.alert(
 					"Purchase successful",
-					"MockMate! Pro is now active on your account.",
+					"MockMate! VIP is now active on your account.",
 				);
 				router.replace("/vip/vipStatus");
 			}
@@ -69,10 +71,14 @@ const VipSubscriptionPage = () => {
 	const handleRestore = async () => {
 		try {
 			const customerInfo = await restorePurchases();
-			if (
-				customerInfo &&
-				Object.keys(customerInfo.entitlements.active).length > 0
-			) {
+
+			// Check if VIP entitlement specifically is active
+			const hasVipEntitlement =
+				customerInfo?.entitlements.active["MockMate! VIP"] ||
+				customerInfo?.entitlements.active["MockMate! Pro"] ||
+				customerInfo?.entitlements.active["Just Write! Pro"];
+
+			if (customerInfo && hasVipEntitlement) {
 				Alert.alert("Restore completed", "Your purchases were restored.");
 				router.replace("/vip/vipStatus");
 			} else {
@@ -91,12 +97,17 @@ const VipSubscriptionPage = () => {
 	const handlePaywall = async () => {
 		try {
 			const result = await presentPaywall();
-			if (result) {
-				Alert.alert("Paywall result", result.toString());
-				if (result === "PURCHASED" || result === "RESTORED") {
-					router.replace("/vip/vipStatus");
-				}
+
+			if (result === "PURCHASED") {
+				Alert.alert("Success", "Welcome to MockMate! VIP");
+				router.replace("/vip/vipStatus");
+			} else if (result === "RESTORED") {
+				Alert.alert("Restored", "Your subscription has been restored.");
+				router.replace("/vip/vipStatus");
+			} else if (result === "ERROR") {
+				Alert.alert("Error", "Something went wrong. Please try again.");
 			}
+			// CANCELLED or NOT_PRESENTED: silent, no alert
 		} catch (error) {
 			const message =
 				error instanceof Error ? error.message : "Unable to open paywall.";
@@ -117,7 +128,7 @@ const VipSubscriptionPage = () => {
 			<StatusBar barStyle="light-content" />
 
 			<ScrollView
-				contentContainerClassName="flex-grow pb-10"
+				contentContainerClassName="grow pb-10"
 				showsVerticalScrollIndicator={false}
 			>
 				<View className="px-6 pt-4 flex flex-row justify-end">
@@ -132,7 +143,7 @@ const VipSubscriptionPage = () => {
 				<View className="items-center px-6 mt-4">
 					<Crown size={80} color="#FFD700" />
 					<Text className="text-white text-4xl font-extrabold text-center leading-tight mt-6">
-						Unlock <Text className="text-[#FFD700]">MockMate! Pro</Text>
+						Unlock <Text className="text-[#FFD700]">MockMate! VIP</Text>
 					</Text>
 					<Text className="text-slate-400 text-base text-center mt-4 px-4 font-medium">
 						Choose a subscription plan or present RevenueCat Paywall.
@@ -190,7 +201,7 @@ const VipSubscriptionPage = () => {
 						className="w-full bg-[#FFD700] h-16 rounded-2xl flex flex-row items-center justify-center gap-2"
 					>
 						{isPurchaseInProgress ? (
-							<Loader2 size={20} color="#020617" />
+							<ActivityIndicator size={"small"} color="#020617" />
 						) : (
 							<ArrowRight size={20} color="#020617" strokeWidth={3} />
 						)}

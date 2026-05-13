@@ -1,11 +1,3 @@
-import { useRouter } from "expo-router";
-import {
-	CalendarRange,
-	CheckCircle2,
-	Crown,
-	Settings,
-	X,
-} from "lucide-react-native";
 import {
 	Alert,
 	ScrollView,
@@ -14,15 +6,24 @@ import {
 	TouchableOpacity,
 	View,
 } from "react-native";
+import {
+	CalendarRange,
+	CheckCircle2,
+	Crown,
+	Settings,
+	X,
+} from "lucide-react-native";
+
 import { UniSafeAreaView } from "@/core/customUniwind";
 import { useRevenueCat } from "@/hooks/useRevenueCat";
+import { useRouter } from "expo-router";
 
 const VipStatusPage = () => {
 	const router = useRouter();
 	const {
-		isPro,
-		proEntitlementIdentifier,
-		proExpiryDate,
+		isVip,
+		vipEntitlementIdentifier,
+		vipExpiryDate,
 		presentCustomerCenter,
 		isPurchaseInProgress,
 	} = useRevenueCat();
@@ -35,10 +36,10 @@ const VipStatusPage = () => {
 		{ title: "Ad-Free Experience", subtitle: "No interruptions" },
 	];
 
-	const expiryDateLabel = proExpiryDate
-		? new Date(proExpiryDate).toDateString()
-		: "N/A";
-
+	// Parse expiry safely; avoid "Invalid Date"
+	const parsedExpiry = vipExpiryDate ? new Date(vipExpiryDate) : null;
+	const isValidExpiry = parsedExpiry && !Number.isNaN(parsedExpiry.getTime());
+	const expiryDateLabel = isValidExpiry ? parsedExpiry.toDateString() : "N/A";
 	const handleManageSubscription = async () => {
 		try {
 			await presentCustomerCenter();
@@ -56,7 +57,7 @@ const VipStatusPage = () => {
 			<StatusBar barStyle="light-content" />
 
 			<ScrollView
-				contentContainerClassName="flex-grow pb-10"
+				contentContainerClassName="grow pb-10"
 				showsVerticalScrollIndicator={false}
 			>
 				<View className="px-6 pt-4 flex flex-row justify-end">
@@ -72,9 +73,9 @@ const VipStatusPage = () => {
 					<Crown size={80} color="#FFD700" />
 
 					<Text className="text-white text-4xl font-extrabold text-center leading-tight mt-6">
-						{isPro ? (
+						{isVip ? (
 							<>
-								You are a <Text className="text-[#FFD700]">MockMate! Pro</Text>{" "}
+								You are a <Text className="text-[#FFD700]">MockMate! VIP</Text>{" "}
 								member
 							</>
 						) : (
@@ -85,7 +86,7 @@ const VipStatusPage = () => {
 					</Text>
 
 					<Text className="text-slate-400 text-base text-center mt-4 px-4 font-medium">
-						{isPro
+						{isVip
 							? "Manage your subscription from RevenueCat Customer Center."
 							: "Upgrade to unlock all premium interview preparation features."}
 					</Text>
@@ -95,21 +96,23 @@ const VipStatusPage = () => {
 					<View className="flex flex-row items-start justify-between">
 						<View className="gap-1">
 							<Text className="text-white text-2xl font-bold">
-								{isPro ? "MockMate! Pro" : "Free Plan"}
+								{isVip ? "MockMate! VIP" : "Free Plan"}
 							</Text>
-							<Text className="text-xs font-semibold text-[#FFD700] uppercase tracking-widest">
-								Entitlement: {proEntitlementIdentifier || "Inactive"}
-							</Text>
+							{isVip && (
+								<Text className="text-xs font-semibold text-[#FFD700] uppercase tracking-widest">
+									Entitlement: {vipEntitlementIdentifier || "Inactive"}
+								</Text>
+							)}
 						</View>
 
 						<Text
 							className={`px-3 py-1 rounded-full border font-bold text-sm ${
-								isPro
+								isVip
 									? "border-green-400/40 bg-green-400/20 text-green-400"
 									: "border-slate-400/40 bg-slate-400/20 text-slate-300"
 							}`}
 						>
-							{isPro ? "ACTIVE" : "INACTIVE"}
+							{isVip ? "ACTIVE" : "INACTIVE"}
 						</Text>
 					</View>
 
@@ -121,7 +124,8 @@ const VipStatusPage = () => {
 						</View>
 
 						<Text className="text-white text-sm">
-							Next billing date: <Text>{expiryDateLabel}</Text>
+							{isVip ? "Renews on" : "Access until"}:{" "}
+							<Text>{expiryDateLabel}</Text>
 						</Text>
 					</View>
 				</View>
@@ -133,9 +137,11 @@ const VipStatusPage = () => {
 							className="flex flex-row items-start gap-3"
 						>
 							<View className="mt-0.5">
-								<CheckCircle2 size={18} color="#FFD700" />
+								<CheckCircle2 size={18} color={isVip ? "#FFD700" : "#94A3B8"} />
 							</View>
-							<Text className="text-white text-sm font-bold flex-1">
+							<Text
+								className={`text-sm font-bold flex-1 ${isVip ? "text-white" : "text-slate-400"}`}
+							>
 								{feature.title}{" "}
 								<Text className="text-slate-400 font-medium">
 									({feature.subtitle})
@@ -146,7 +152,7 @@ const VipStatusPage = () => {
 				</View>
 
 				<View className="px-6 mt-10">
-					{isPro ? (
+					{isVip ? (
 						<TouchableOpacity
 							onPress={handleManageSubscription}
 							disabled={isPurchaseInProgress}
@@ -163,7 +169,7 @@ const VipStatusPage = () => {
 							className="w-full bg-[#FFD700] h-16 rounded-2xl flex items-center justify-center"
 						>
 							<Text className="text-[#020617] text-lg font-black">
-								Upgrade to Pro
+								Upgrade to VIP
 							</Text>
 						</TouchableOpacity>
 					)}

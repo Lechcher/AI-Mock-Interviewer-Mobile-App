@@ -1,14 +1,15 @@
-import { router } from "expo-router";
+import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { BadgeCheck, Check, Minus, Plus, Sparkles } from "lucide-react-native";
 import { Controller, useForm } from "react-hook-form";
-import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
-import Header from "@/components/Header";
-import { difficulties, industries } from "@/constants/data";
 import { UniSafeAreaView, UniScrollView } from "@/core/customUniwind";
+import { difficulties, industries } from "@/constants/data";
+
+import Header from "@/components/Header";
+import { router } from "expo-router";
 import { useRevenueCat } from "@/hooks/useRevenueCat";
 
 const NewInterview = () => {
-	const { isPro } = useRevenueCat();
+	const { isVip } = useRevenueCat();
 
 	const {
 		control,
@@ -40,21 +41,21 @@ const NewInterview = () => {
 					<TouchableOpacity onPress={() => router.push("/vip/vipStatus")}>
 						<View
 							className={`flex flex-row w-fit items-center justify-center gap-1 px-2 py-1.5 rounded-full border ${
-								isPro
+								isVip
 									? "bg-yellow-50 border-yellow-100"
 									: "bg-slate-50 border-slate-100"
 							}`}
 						>
 							<BadgeCheck
 								size={20}
-								color={`${isPro ? "#EAB308" : "#6B7280"}`}
+								color={`${isVip ? "#EAB308" : "#6B7280"}`}
 							/>
 							<Text
 								className={`${
-									isPro ? "text-yellow-600" : "text-slate-600"
+									isVip ? "text-yellow-600" : "text-slate-600"
 								} font-bold text-xs`}
 							>
-								PRO
+								VIP
 							</Text>
 						</View>
 					</TouchableOpacity>

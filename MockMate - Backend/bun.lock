@@ -6,14 +6,12 @@
       "name": "hono",
       "dependencies": {
         "@hono/zod-validator": "^0.7.6",
-        "@varlock/bitwarden-plugin": "^0.0.3",
         "drizzle-orm": "^0.45.2",
         "drizzle-zod": "^0.8.3",
         "hono": "^4.11.3",
         "node-appwrite": "^22.1.3",
         "openai": "^6.34.0",
         "postgres": "^3.4.8",
-        "varlock": "^0.4.2",
         "zod": "^4.3.6",
       },
       "devDependencies": {
@@ -106,8 +104,6 @@
 
     "@types/node": ["@types/node@20.19.27", "", { "dependencies": { "undici-types": "~6.21.0" } }, "sha512-N2clP5pJhB2YnZJ3PIHFk5RkygRX5WO/5f0WC08tp0wd+sv0rsJk3MqWn3CbNmT2J505a5336jaQj4ph1AdMug=="],
 
-    "@varlock/bitwarden-plugin": ["@varlock/bitwarden-plugin@0.0.3", "", { "peerDependencies": { "varlock": "^0.4.0" } }, "sha512-67GPx+d//0c7gaT6MTNbXCHJ4hV6I7FiKrHKXMK4F/NdgmyJB+kKXOgpMy8RLBkE6tXq6HgsMCiQsshSLBNVgQ=="],
-
     "bignumber.js": ["bignumber.js@9.3.1", "", {}, "sha512-Ko0uX15oIUS7wJ3Rb30Fs6SkVbLmPBAKdlm7q9+ak9bbIeFf0MwuBsQV6z7+X768/cHsfg+WlysDWJcmthjsjQ=="],
 
     "buffer-from": ["buffer-from@1.1.2", "", {}, "sha512-E+XQCRwSbaaiChtv6k6Dwgc+bx+Bs6vuKJHHl5kox/BaKbhiXzqQOwK4cO22yElGp2OCmjwVhT3HmxgyPGnJfQ=="],
@@ -147,8 +143,6 @@
     "typescript": ["typescript@5.9.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw=="],
 
     "undici-types": ["undici-types@6.21.0", "", {}, "sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ=="],
-
-    "varlock": ["varlock@0.4.2", "", { "bin": { "varlock": "bin/cli.js" } }, "sha512-7/JzuOWcAivPbIcUQVbBPDnh2/fGKEGpYNx3aiDRcqM5sG3T4ChO2CemaCku2vzbDMYPLh0mQw08u0w4QFb5AA=="],
 
     "zod": ["zod@4.3.6", "", {}, "sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg=="],
 

@@ -1,14 +1,6 @@
 import * as ImageManipulator from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
-import { useRouter } from "expo-router";
-import {
-	Bell,
-	CircleCheck,
-	Crown,
-	Flame,
-	GraduationCap,
-} from "lucide-react-native";
-import { useState } from "react";
+
 import {
 	ActivityIndicator,
 	Alert,
@@ -19,21 +11,31 @@ import {
 	TouchableOpacity,
 	View,
 } from "react-native";
+import {
+	Bell,
+	CircleCheck,
+	Crown,
+	Flame,
+	GraduationCap,
+} from "lucide-react-native";
+
 import Header from "@/components/Header";
 import SettingList from "@/components/SettingList";
+import { UniSafeAreaView } from "@/core/customUniwind";
 import { UniversalAvatar } from "@/components/UniversalAvatar";
 import { profileSettingsListData } from "@/constants/data";
 import { uploadAvatarToAppwrite } from "@/core/appwrite";
-import { UniSafeAreaView } from "@/core/customUniwind";
 import { useGlobalContext } from "@/core/global-provider";
 import { useProfile } from "@/hooks/useProfile";
 import { useRevenueCat } from "@/hooks/useRevenueCat";
+import { useRouter } from "expo-router";
+import { useState } from "react";
 import { useSyncProfile } from "@/hooks/useSyncProfile";
 
 const Profile = () => {
 	const router = useRouter();
 	const { user } = useGlobalContext();
-	const { isPro, proExpiryDate, presentCustomerCenter, isPurchaseInProgress } =
+	const { isVip, vipExpiryDate, presentCustomerCenter, isPurchaseInProgress } =
 		useRevenueCat();
 
 	const { profile, isLoading } = useProfile();
@@ -43,7 +45,7 @@ const Profile = () => {
 	const [newName, setNewName] = useState("");
 
 	const handleMembershipPress = async () => {
-		if (!isPro) {
+		if (!isVip) {
 			router.push("/vip/vipSubscription");
 			return;
 		}
@@ -220,13 +222,13 @@ const Profile = () => {
 								<Crown size={24} color={"#FDE047"} />
 
 								<Text className="text-lg font-bold text-white">
-									{isPro ? "MockMate! Pro" : "Go Pro"}
+									{isVip ? "MockMate! VIP" : "Go VIP"}
 								</Text>
 							</View>
 
 							<Text className="text-sm font-bold text-white">
-								{isPro
-									? `Next billing date: ${proExpiryDate ? new Date(proExpiryDate).toDateString() : "N/A"}`
+								{isVip
+									? `Next billing date: ${vipExpiryDate ? new Date(vipExpiryDate).toDateString() : "N/A"}`
 									: "Unlock unlimited AI interviews."}
 							</Text>
 						</View>
@@ -237,7 +239,7 @@ const Profile = () => {
 							className="items-center justify-center px-4 py-2 bg-white rounded-full"
 						>
 							<Text className="text-primary-100 text-sm font-bold">
-								{isPro ? "Manage" : "Upgrade"}
+								{isVip ? "Manage" : "Upgrade"}
 							</Text>
 						</TouchableOpacity>
 					</View>

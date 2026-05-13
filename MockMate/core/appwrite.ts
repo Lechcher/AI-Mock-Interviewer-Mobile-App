@@ -236,6 +236,72 @@ export const syncProfileToBackend = async (
 	}
 };
 
+/**
+ * Interface for VIP status sync payload
+ */
+export interface VipStatusSyncPayload {
+	isVip: boolean;
+	vipExpiryDate?: string | null;
+	entitlementIdentifier?: string | null;
+}
+
+/**
+ * Syncs VIP status to the backend after RevenueCat purchase/restore.
+ * This ensures the backend PostgreSQL database stays in sync with RevenueCat.
+ * @param arg - The VIP status payload containing isVip and optional expiry date
+ * @returns A promise resolving to the sync response
+ */
+export const syncVipStatusToBackend = async (
+	_url: string,
+	{ arg }: { arg: VipStatusSyncPayload },
+): Promise<BackendSyncResponse> => {
+	try {
+		const jwtResponse = await account.createJWT();
+		const jwt = jwtResponse.jwt;
+
+		if (isDevelopment) {
+			console.log("Created JWT for VIP status sync");
+		}
+
+		const response = await fetch(
+			`${EXPO_PUBLIC_BACKEND_URL}/api/v1/users/vip-status`,
+			{
+				method: "PUT",
+				headers: {
+					Authorization: `Bearer ${jwt}`,
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					isVip: arg.isVip,
+					vipExpiryDate: arg.vipExpiryDate,
+					entitlementIdentifier: arg.entitlementIdentifier,
+				}),
+			},
+		);
+
+		const data = await response.json();
+
+		if (!response.ok) {
+			throw new Error(data.error || "Failed to sync VIP status with backend");
+		}
+
+		if (isDevelopment) {
+			console.log("VIP status synced to Backend successfully");
+		}
+
+		return {
+			success: true,
+			data: data.data,
+		};
+	} catch (error) {
+		console.error("VIP status sync error:", error);
+		return {
+			success: false,
+			error: error instanceof Error ? error.message : "Unknown error",
+		};
+	}
+};
+
 export const uploadAvatarToAppwrite = async (
 	fileUri: string,
 ): Promise<string | null> => {

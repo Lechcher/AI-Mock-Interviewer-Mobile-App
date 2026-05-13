@@ -1,7 +1,5 @@
-import type BottomSheet from "@gorhom/bottom-sheet";
-import { Redirect, useRouter } from "expo-router";
 import { BadgeCheck, Flame, Gem, LockKeyhole, Plus } from "lucide-react-native";
-import { useMemo, useRef, useState } from "react";
+import { Card, FeaturedCard } from "@/components/Card";
 import {
 	FlatList,
 	RefreshControl,
@@ -13,17 +11,20 @@ import {
 	ItemBottomSheet,
 	StreakBottomSheet,
 } from "@/components/BottomSheetPopup";
-import { Card, FeaturedCard } from "@/components/Card";
-import { UniversalAvatar } from "@/components/UniversalAvatar";
+import { Redirect, useRouter } from "expo-router";
 import { cardsData, featuredCardsData, status } from "@/constants/data";
+import { useMemo, useRef, useState } from "react";
+
+import type BottomSheet from "@gorhom/bottom-sheet";
 import { UniSafeAreaView } from "@/core/customUniwind";
+import { UniversalAvatar } from "@/components/UniversalAvatar";
 import { useGlobalContext } from "@/core/global-provider";
 import { useRevenueCat } from "@/hooks/useRevenueCat";
 
 export default function Index() {
 	// Global user and authentication state
 	const { user, loading, isLoggedIn } = useGlobalContext();
-	const { isPro } = useRevenueCat();
+	const { isVip } = useRevenueCat();
 
 	const router = useRouter();
 
@@ -102,21 +103,21 @@ export default function Index() {
 					<TouchableOpacity onPress={() => router.push("/vip/vipStatus")}>
 						<View
 							className={`flex flex-row w-fit items-center justify-center gap-1 px-2 py-1.5 rounded-full border ${
-								isPro
+								isVip
 									? "bg-yellow-50 border-yellow-100"
 									: "bg-slate-50 border-slate-100"
 							}`}
 						>
 							<BadgeCheck
 								size={20}
-								color={`${isPro ? "#EAB308" : "#6B7280"}`}
+								color={`${isVip ? "#EAB308" : "#6B7280"}`}
 							/>
 							<Text
 								className={`${
-									isPro ? "text-yellow-600" : "text-slate-600"
+									isVip ? "text-yellow-600" : "text-slate-600"
 								} font-bold text-xs`}
 							>
-								PRO
+								VIP
 							</Text>
 						</View>
 					</TouchableOpacity>
@@ -175,7 +176,7 @@ export default function Index() {
 				className="absolute bottom-4 right-4"
 				onPress={() => router.push("/newInterview")}
 			>
-				{!isPro && (
+				{!isVip && (
 					<View className="absolute -top-3 -right-3 inline-flex items-center justify-center p-2 rounded-full bg-[#FACC15] border-2 border-white z-10">
 						<LockKeyhole
 							color={"#713F12"}

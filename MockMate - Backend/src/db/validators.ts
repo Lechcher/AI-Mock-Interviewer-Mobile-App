@@ -1,21 +1,20 @@
-import { createInsertSchema, createUpdateSchema } from "drizzle-zod";
-import { z } from "zod";
-
+import {createInsertSchema, createUpdateSchema} from "drizzle-zod";
 // Import all tables from schema
 import {
-	users,
-	interviews,
-	interviewReviews,
-	savedInterviews,
-	interviewSessions,
-	dailyQuests,
-	userQuests,
-	// Enum types
-	interviewDifficultyEnum,
-	sessionModeEnum,
-	sessionStatusEnum,
-	questTypeEnum,
+    dailyQuests,
+    interviewDifficultyEnum,
+    interviewReviews,
+    interviewSessions,
+    interviews,
+    questTypeEnum,
+    savedInterviews,
+    sessionModeEnum,
+    sessionStatusEnum,
+    userQuests,
+    users,
 } from "./schema.js";
+
+import {z} from "zod";
 
 // ==========================================
 // USERS VALIDATORS
@@ -26,40 +25,35 @@ const baseInsertUserSchema = createInsertSchema(users);
 
 // Schema for creating a new user with custom validations
 export const insertUserSchema = baseInsertUserSchema.extend({
-	email: z.string().email(),
-	avatarUrl: z.string().url().optional().nullable(),
-	name: z.string().min(1, "Name is required"),
-	gems: z.number().int().min(0, "Gems cannot be negative"),
-	interviewsLearnedCount: z
-		.number()
-		.int()
-		.min(0, "Interviews learned count cannot be negative"),
-	totalXp: z.number().int().min(0, "Total XP cannot be negative"),
-	currentStreak: z.number().int().min(0, "Current streak cannot be negative"),
-	streakFreeze: z.number().int().min(0, "Streak freeze cannot be negative"),
+    email: z.string().email(),
+    avatarUrl: z.string().url().optional().nullable(),
+    name: z.string().min(1, "Name is required"),
+    gems: z.number().int().min(0, "Gems cannot be negative"),
+    totalXp: z.number().int().min(0, "Total XP cannot be negative"),
+    currentStreak: z.number().int().min(0, "Current streak cannot be negative"),
+    streakFreeze: z.number().int().min(0, "Streak freeze cannot be negative"),
 });
 
 // Schema for updating a user
 export const updateUserSchema = createUpdateSchema(users).extend({
-	email: z.string().email("Invalid email address").optional(),
-	avatarUrl: z.string().url().optional().nullable(),
-	name: z.string().min(1, "Name is required").optional(),
-	gems: z.number().int().min(0, "Gems cannot be negative").optional(),
-	interviewsLearnedCount: z
-		.number()
-		.int()
-		.min(0, "Interviews learned count cannot be negative"),
-	totalXp: z.number().int().min(0, "Total XP cannot be negative").optional(),
-	currentStreak: z
-		.number()
-		.int()
-		.min(0, "Current streak cannot be negative")
-		.optional(),
-	streakFreeze: z
-		.number()
-		.int()
-		.min(0, "Streak freeze cannot be negative")
-		.optional(),
+    avatarUrl: z.string().url().optional().nullable(),
+    name: z.string().min(1, "Name is required").optional(),
+    gems: z.number().int().min(0, "Gems cannot be negative").optional(),
+    interviewsLearnedCount: z
+        .number()
+        .int()
+        .min(0, "Interviews learned count cannot be negative"),
+    totalXp: z.number().int().min(0, "Total XP cannot be negative").optional(),
+    currentStreak: z
+        .number()
+        .int()
+        .min(0, "Current streak cannot be negative")
+        .optional(),
+    streakFreeze: z
+        .number()
+        .int()
+        .min(0, "Streak freeze cannot be negative")
+        .optional(),
 });
 
 // Type exports for users
@@ -73,44 +67,60 @@ export type User = typeof users.$inferSelect;
 
 // Schema for creating a new interview
 export const insertInterviewSchema = createInsertSchema(interviews).extend({
-	title: z.string().min(1, "Title is required"),
-	industry: z.string().min(1, "Industry is required"),
-	difficulty: z.enum(interviewDifficultyEnum),
-	questionCount: z.number().int().min(1, "Question count must be at least 1"),
-	focusArea: z.string().min(1, "Focus area is required"),
-	avgRating: z
-		.number()
-		.min(0, "Rating cannot be negative")
-		.max(5, "Rating cannot exceed 5"),
-	totalReviews: z.number().int().min(0, "Total reviews cannot be negative"),
+    title: z.string().min(1, "Title is required"),
+    industry: z.string().min(1, "Industry is required"),
+    difficulty: z.enum(interviewDifficultyEnum.enumValues),
+    questionCount: z.number().int().min(1, "Question count must be at least 1"),
+    focusArea: z.string().min(1, "Focus area is required"),
+    avgRating: z
+        .number()
+        .min(0, "Rating cannot be negative")
+        .max(5, "Rating cannot exceed 5"),
+    totalReviews: z.number().int().min(0, "Total reviews cannot be negative"),
 });
 
 // Schema for updating an interview
 export const updateInterviewSchema = createUpdateSchema(interviews).extend({
-	title: z.string().min(1, "Title is required").optional(),
-	industry: z.string().min(1, "Industry is required").optional(),
-	difficulty: z.enum(interviewDifficultyEnum).optional(),
-	questionCount: z
-		.number()
-		.int()
-		.min(1, "Question count must be at least 1")
-		.optional(),
-	focusArea: z.string().min(1, "Focus area is required").optional(),
-	avgRating: z
-		.number()
-		.min(0, "Rating cannot be negative")
-		.max(5, "Rating cannot exceed 5")
-		.optional(),
-	totalReviews: z
-		.number()
-		.int()
-		.min(0, "Total reviews cannot be negative")
-		.optional(),
+    title: z.string().min(1, "Title is required").optional(),
+    industry: z.string().min(1, "Industry is required").optional(),
+    difficulty: z.enum(interviewDifficultyEnum.enumValues).optional(),
+    questionCount: z
+        .number()
+        .int()
+        .min(1, "Question count must be at least 1")
+        .optional(),
+    focusArea: z.string().min(1, "Focus area is required").optional(),
+    avgRating: z
+        .number()
+        .min(0, "Rating cannot be negative")
+        .max(5, "Rating cannot exceed 5")
+        .optional(),
+    totalReviews: z
+        .number()
+        .int()
+        .min(0, "Total reviews cannot be negative")
+        .optional(),
 });
+
+export const createCustomInterviewSchema = createInsertSchema(interviews).omit({
+    id: true,
+    createdBy: true,
+    avgRating: true,
+    totalReviews: true,
+    createdAt: true,
+    updatedAt: true,
+}).extend({
+    title: z.string().min(1, "Title is required").max(255),
+    industry: z.string().min(1, "Industry is required").max(255),
+    difficulty: z.enum(interviewDifficultyEnum.enumValues),
+    questionCount: z.number().int().min(1, "Question count must be at least 1").max(20, "Question count cannot exceed 20"),
+    focusArea: z.string().min(5, "Focus area is required").max(1000),
+})
 
 // Type exports for interviews
 export type InsertInterview = z.infer<typeof insertInterviewSchema>;
 export type UpdateInterview = z.infer<typeof updateInterviewSchema>;
+export type createCustomInterview = z.infer<typeof createCustomInterviewSchema>;
 export type Interview = typeof interviews.$inferSelect;
 
 // ==========================================
@@ -119,25 +129,25 @@ export type Interview = typeof interviews.$inferSelect;
 
 // Schema for creating a new review
 export const insertInterviewReviewSchema = createInsertSchema(
-	interviewReviews,
+    interviewReviews,
 ).extend({
-	rating: z
-		.number()
-		.int()
-		.min(1, "Rating must be at least 1")
-		.max(5, "Rating cannot exceed 5"),
+    rating: z
+        .number()
+        .int()
+        .min(1, "Rating must be at least 1")
+        .max(5, "Rating cannot exceed 5"),
 });
 
 // Schema for updating a review
 export const updateInterviewReviewSchema = createUpdateSchema(
-	interviewReviews,
+    interviewReviews,
 ).extend({
-	rating: z
-		.number()
-		.int()
-		.min(1, "Rating must be at least 1")
-		.max(5, "Rating cannot exceed 5")
-		.optional(),
+    rating: z
+        .number()
+        .int()
+        .min(1, "Rating must be at least 1")
+        .max(5, "Rating cannot exceed 5")
+        .optional(),
 });
 
 // Type exports for reviews
@@ -166,28 +176,28 @@ export type SavedInterview = typeof savedInterviews.$inferSelect;
 
 // Schema for creating a new session
 export const insertInterviewSessionSchema = createInsertSchema(
-	interviewSessions,
+    interviewSessions,
 ).extend({
-	mode: z.enum(sessionModeEnum),
-	status: z.enum(sessionStatusEnum).default("in_progress"),
-	xpEarned: z.number().int().min(0, "XP earned cannot be negative"),
+    mode: z.enum(sessionModeEnum.enumValues),
+    status: z.enum(sessionStatusEnum.enumValues).default("in_progress"),
+    xpEarned: z.number().int().min(0, "XP earned cannot be negative"),
 });
 
 // Schema for updating a session
 export const updateInterviewSessionSchema = createUpdateSchema(
-	interviewSessions,
+    interviewSessions,
 ).extend({
-	mode: z.enum(sessionModeEnum).optional(),
-	status: z.enum(sessionStatusEnum).optional(),
-	xpEarned: z.number().int().min(0, "XP earned cannot be negative").optional(),
+    mode: z.enum(sessionModeEnum.enumValues).optional(),
+    status: z.enum(sessionStatusEnum.enumValues).optional(),
+    xpEarned: z.number().int().min(0, "XP earned cannot be negative").optional(),
 });
 
 // Type exports for sessions
 export type InsertInterviewSession = z.infer<
-	typeof insertInterviewSessionSchema
+    typeof insertInterviewSessionSchema
 >;
 export type UpdateInterviewSession = z.infer<
-	typeof updateInterviewSessionSchema
+    typeof updateInterviewSessionSchema
 >;
 export type InterviewSession = typeof interviewSessions.$inferSelect;
 
@@ -197,26 +207,26 @@ export type InterviewSession = typeof interviewSessions.$inferSelect;
 
 // Schema for creating a new quest
 export const insertDailyQuestSchema = createInsertSchema(dailyQuests).extend({
-	questType: z.enum(questTypeEnum),
-	title: z.string().min(1, "Title is required"),
-	requirements: z.number().int().min(1, "Requirements must be at least 1"),
-	rewardGems: z.number().int().min(1, "Reward gems must be at least 1"),
+    questType: z.enum(questTypeEnum.enumValues),
+    title: z.string().min(1, "Title is required"),
+    requirements: z.number().int().min(1, "Requirements must be at least 1"),
+    rewardGems: z.number().int().min(1, "Reward gems must be at least 1"),
 });
 
 // Schema for updating a quest
 export const updateDailyQuestSchema = createUpdateSchema(dailyQuests).extend({
-	questType: z.enum(questTypeEnum).optional(),
-	title: z.string().min(1, "Title is required").optional(),
-	requirements: z
-		.number()
-		.int()
-		.min(1, "Requirements must be at least 1")
-		.optional(),
-	rewardGems: z
-		.number()
-		.int()
-		.min(1, "Reward gems must be at least 1")
-		.optional(),
+    questType: z.enum(questTypeEnum.enumValues).optional(),
+    title: z.string().min(1, "Title is required").optional(),
+    requirements: z
+        .number()
+        .int()
+        .min(1, "Requirements must be at least 1")
+        .optional(),
+    rewardGems: z
+        .number()
+        .int()
+        .min(1, "Reward gems must be at least 1")
+        .optional(),
 });
 
 // Type exports for quests
@@ -230,12 +240,12 @@ export type DailyQuest = typeof dailyQuests.$inferSelect;
 
 // Schema for creating user quest progress
 export const insertUserQuestSchema = createInsertSchema(userQuests).extend({
-	progress: z.number().int().min(0, "Progress cannot be negative"),
+    progress: z.number().int().min(0, "Progress cannot be negative"),
 });
 
 // Schema for updating user quest progress
 export const updateUserQuestSchema = createUpdateSchema(userQuests).extend({
-	progress: z.number().int().min(0, "Progress cannot be negative").optional(),
+    progress: z.number().int().min(0, "Progress cannot be negative").optional(),
 });
 
 // Type exports for user quests
